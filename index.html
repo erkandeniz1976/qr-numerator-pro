@@ -11,6 +11,7 @@
         button:hover { background: #0051b3; }
         input { padding: 12px; width: 100%; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .hidden { display: none; }
+        .badge { background: #e2e8f0; padding: 4px 8px; border-radius: 5px; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -24,6 +25,7 @@
             <input type="text" id="recovery-input" placeholder="Kartonetteki Kurtarma Kodunu Girin">
             <input type="password" id="pin-input" placeholder="4 Haneli PIN Belirleyin" maxlength="4">
             <button onclick="activateQR()">Etiketi Anonim Aktive Et</button>
+            <button onclick="simulateScan()" style="background:#6c757d; margin-top:20px;">🔍 QR Tarama Ekranını Test Et (Vatandaş Görünümü)</button>
         </div>
 
         <!-- DURUM B: Müşteri Yönetim Paneli -->
@@ -32,11 +34,22 @@
             <button onclick="modSec('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
             <button onclick="modSec('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
             <button onclick="modSec('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
+            <button onclick="cikisYap()" style="background:#dc3545; margin-top:20px;">❌ Panelden Çıkış Yap</button>
+        </div>
+
+        <!-- DURUM C: Dışarıdan Taratan Kişinin Göreceği Ekran (Vatandaş Görünümü) -->
+        <div id="visitor-zone" class="hidden">
+            <div style="margin: 20px 0;">
+                <span id="visitor-status-badge" class="badge">Mod: Yükleniyor</span>
+            </div>
+            <p id="visitor-instruction" style="font-weight:bold; font-size:16px;"></p>
+            <button onclick="alert('Araç sahibine SMS bildirimi gönderildi! (Simülasyon)')" style="background:#28a745; font-size:16px; padding:15px;">💬 Araç Sahibine Haber Ver</button>
+            <button onclick="window.location.reload()" style="background:#6c757d; font-size:13px;">↩️ Ana Sayfaya Dön</button>
         </div>
     </div>
 
     <script>
-        // Sayfa ilk açıldığında aktivasyon formunu görünür yapar
+        // Sayfa ilk açıldığında çalışacak fonksiyon
         function init() {
             document.getElementById('message').innerText = "Bu QR etiketi henüz aktive edilmemiş. Sahibiyseniz bilgileri girerek hemen başlatın.";
             document.getElementById('activation-zone').classList.remove('hidden');
@@ -52,16 +65,13 @@
                 return; 
             }
             
-            // Kontrol: Kurtarma kodu "testkodu123" ve PIN "1923" olmalıdır
             if(recoveryInput === "testkodu123" && pinInput === "1923") {
                 alert("Aktivasyon Başarılı!");
                 
-                // Formu kapat, yönetim panelini aç
                 document.getElementById('activation-zone').classList.add('hidden');
                 document.getElementById('title').innerText = "🛠️ Müşteri Paneli";
                 
-                // Hafızadaki modu kontrol et ve ekrana yaz
-                const mevcutMod = localStorage.getItem("secilen_mod") || "Seçilmedi";
+                const mevcutMod = localStorage.getItem("secilen_mod") || "🚗 Hatalı Park Modu";
                 document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${mevcutMod})`;
                 
                 document.getElementById('owner-zone').classList.remove('hidden');
@@ -70,19 +80,47 @@
             }
         }
 
-        // Seçilen modu hafızaya (LocalStorage) kaydeden fonksiyon
+        // Seçilen modu hafızaya kaydeden fonksiyon
         function modSec(modAdi) {
-            // Tarayıcı hafızasına modu kaydediyoruz
             localStorage.setItem("secilen_mod", modAdi);
-            
-            // Kullanıcıya bilgi mesajı veriyoruz
             alert(`✅ Görünür mod başarıyla güncellendi: ${modAdi}`);
-            
-            // Ekrandaki bilgi yazısını anlık olarak değiştiriyoruz
             document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${modAdi})`;
         }
 
-        // Sayfa yüklendiğinde otomatik başlat
+        // SİMÜLASYON: Dışarıdan biri QR kodu taratınca ne görecek?
+        function simulateScan() {
+            // Tüm yönetim ve aktivasyon alanlarını gizle
+            document.getElementById('activation-zone').classList.add('hidden');
+            document.getElementById('owner-zone').classList.add('hidden');
+            
+            // Başlık ve mesaj alanını ziyaretçiye göre güncelle
+            document.getElementById('title').innerText = "📱 QR İletişim Sistemi";
+            document.getElementById('message').innerText = "Bu aracın sahibi numarasını gizli tutarak sizinle iletişim kurmaktadır.";
+            
+            // Hafızadaki aktif modu oku, yoksa varsayılan yap
+            const aktifMod = localStorage.getItem("secilen_mod") || "🚗 Hatalı Park Modu";
+            
+            // Rozeti güncelle
+            document.getElementById('visitor-status-badge').innerText = `Durum: ${aktifMod}`;
+            
+            // Moda göre vatandaşa gösterilecek talimat metnini ayarla
+            const talimatAlani = document.getElementById('visitor-instruction');
+            if(aktifMod.includes("Hatalı Park")) {
+                talimatAlani.innerText = "🚗 Araç hatalı park edilmiştir. Sahibi kısa süre içinde gelecektir. Aşağıdaki butondan bildirim gönderebilirsiniz.";
+            } else if(aktifMod.includes("Acil Durum")) {
+                talimatAlani.innerText = "⚠️ Araç başında acil bir durum söz konusudur! Lütfen aşağıdaki butonu kullanarak hemen sahibine ulaşın.";
+            } else if(aktifMod.includes("Toplantı")) {
+                talimatAlani.innerText = "💼 Araç sahibi şu anda meşguldür veya toplantıdadır. Çok acil değilse lütfen bekleyiniz veya bildirim gönderiniz.";
+            }
+            
+            // Ziyaretçi ekranını aç
+            document.getElementById('visitor-zone').classList.remove('hidden');
+        }
+
+        function cikisYap() {
+            window.location.reload();
+        }
+
         window.onload = init;
     </script>
 </body>
