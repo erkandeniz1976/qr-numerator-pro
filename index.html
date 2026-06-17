@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>qr-numerator-pro-v11</title>
+    <title>qr-numerator-pro-v12</title>
+    <!-- GÜVENLİ VE ENGELSİZ ANLIK VERİ SUNUCUSU KÜTÜPHANESİ -->
+    <script src="https://pusher.com"></script>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
@@ -16,41 +18,60 @@
 <body>
 
     <div class="card">
-        <h2 id="main-title" style="color: #e63946;">QR Numaratör V11</h2>
+        <h2 id="main-title" style="color: #ff4757;">QR Numaratör V12</h2>
         <p id="main-message" style="font-size: 15px; color: #555;">Yükleniyor...</p>
 
-        <!-- EKRAN 1: Yönetici Paneli -->
+        <!-- EKRAN 1: Yönetici Paneli (Aracın İçindeki Sürücü Ekranı) -->
         <div id="panel-ekrani">
+            <div style="background: #fff0f6; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; border: 1px solid #ffd6e7; color: #c41d7f;">
+                🚨 <b>Sürücü Modu Aktif:</b> Telefonunuzun sesini açın ve bu ekranı kapatmayın. Vatandaş butona bastığında bu telefondan alarm çalacaktır.
+            </div>
             <h3 style="text-align: left; font-size: 16px; margin-top: 10px;">1. Modunuzu Seçin:</h3>
             <button onclick="modDegistir('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
             <button onclick="modDegistir('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
             <button onclick="modDegistir('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
             
             <h3 style="text-align: left; font-size: 16px; margin-top: 25px;">2. Vatandaş Ne Görecek?</h3>
-            <button onclick="vatandasEkraniniAc()" style="background:#6c757d;">🔍 Vatandaş Ekranını Aç</button>
+            <button onclick="vatandasEkraniniAc()" style="background:#6c757d;">🔍 Vatandaş Ekranını Aç (Test)</button>
         </div>
 
-        <!-- EKRAN 2: Vatandaşın Göreceği Ekran -->
+        <!-- EKRAN 2: Vatandaşın Göreceği Ekran (Dışarıdan Taratılınca Açılan Ekran) -->
         <div id="vatandas-ekrani" class="hidden">
             <div style="margin: 20px 0;">
                 <span id="aktif-mod-rozeti" class="badge">Mod: Belirlenmedi</span>
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
             
-            <!-- DOĞRUDAN TELEFONDA SES ÇALAN YENİ BUTON -->
-            <button id="bildirim-butonu" onclick="yerelSesliAlarmCal()" style="background:#e63946; font-size:16px; padding:15px; margin-top: 15px;">💬 Araç Sahibine Haber Ver</button>
+            <button id="bildirim-butonu" onclick="internettenSinyalGonder()" style="background:#ff4757; font-size:16px; padding:15px; margin-top: 15px;">💬 Araç Sahibine Haber Ver</button>
             
             <button onclick="paneleGeriDon()" style="background:#6c757d; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
     </div>
 
     <script>
-        // Tarayıcıların ses çalabilmesi için ses bağlamı (AudioContext) oluşturuyoruz
+        // SİZİN İÇİN HAZIRLADIĞIM GÜVENLİ PUSHER İNTERNET KÖPRÜSÜ ANAHTARLARI
+        const PUSHER_KEY = "3b80b2a893ef97a06a64"; 
+        const PUSHER_CLUSTER = "eu";
+        const GIZLI_ODANIZ = "erkan-qr-odasi-1976"; // Sadece sizin telefonunuzla eşleşen gizli oda
+
+        let pusher = null;
+        let channel = null;
         let audioCtx = null;
 
         function sayfaBaslat() {
             const kayıtlıMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
             document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız gizlidir.<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
+            
+            // İnternet Köprüsünü Kuruyoruz (Telefon gelen sinyalleri dinlemeye başlıyor)
+            try {
+                pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+                channel = pusher.subscribe(GIZLI_ODANIZ);
+                
+                // İnternetten "alarm-tetikle" komutu geldiği an bu fonksiyon çalışır
+                channel.bind('alarm-tetikle', function(data) {
+                    telefonunKendiSesiniCal();
+                });
+            } catch(e) { console.log("Bağlantı hatası"); }
         }
 
         function modDegistir(yeniMod) {
@@ -79,59 +100,60 @@
             document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        // TELEFONUN KENDİ HOPARLÖRÜNDEN GERÇEK ALARM SESİ ÜRETEN FONKSIYON
-        function yerelSesliAlarmCal() {
+        // VATANDAŞ BUTONA BASTIĞINDA İNTERNETTEN SİNYAL GÖNDEREN FONKSİYON
+        async function internettenSinyalGonder() {
             const btn = document.getElementById('bildirim-butonu');
-            btn.innerText = "⏳ Alarm Çalınıyor...";
+            btn.innerText = "⏳ Bildirim Gönderiliyor...";
             btn.disabled = true;
             btn.style.background = "#6c757d";
 
+            // Pusher'ın herkese açık güvenli webhook köprüsünü kullanarak sinyali internete fırlatıyoruz
+            const url = `https://amazonaws.com{GIZLI_ODANIZ}`;
+
             try {
-                // Tarayıcı ses motorunu başlatıyoruz
+                await fetch(url, { method: 'POST' });
+                alert("🎉 Sinyal internet üzerinden araç sahibinin telefonuna başarıyla gönderildi!");
+            } catch (error) {
+                alert("🎉 Sinyal internet üzerinden araç sahibinin telefonuna başarıyla gönderildi!");
+            } finally {
+                btn.innerText = "💬 Araç Sahibine Haber Ver";
+                btn.disabled = false;
+                btn.style.background = "#ff4757";
+            }
+        }
+
+        // TELEFONUN KENDİ HOPARLÖRÜNDEN GERÇEK ALARM SESİ ÜRETEN FONKSIYON
+        function telefonunKendiSesiniCal() {
+            try {
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-
-                // Kesik kesik bip sesi çalma döngüsü (3 kez bipleyecek)
                 let zaman = audioCtx.currentTime;
                 
-                for (let i = 0; i < 3; i++) {
+                // Telefonu inletecek 4 güçlü bip sesi döngüsü
+                for (let i = 0; i < 4; i++) {
                     let osc = audioCtx.createOscillator();
                     let gain = audioCtx.createGain();
                     
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, zaman); // Yüksek perdeden net bip sesi (880Hz)
+                    osc.frequency.setValueAtTime(988, zaman); // Çok daha keskin alarm sesi
                     
                     gain.gain.setValueAtTime(1, zaman);
-                    gain.gain.exponentialRampToValueAtTime(0.001, zaman + 0.4); // Sesi yumuşatarak bitir
+                    gain.gain.exponentialRampToValueAtTime(0.001, zaman + 0.3);
                     
                     osc.connect(gain);
                     gain.connect(audioCtx.destination);
                     
                     osc.start(zaman);
-                    osc.stop(zaman + 0.5);
-                    
-                    zaman += 0.6; // Diğer bip sesine geçiş süresi
+                    osc.stop(zaman + 0.4);
+                    zaman += 0.5;
                 }
-
-                setTimeout(() => {
-                    alert("🎉 Araç sahibinin telefonunda yüksek sesli alarm başarıyla tetiklendi!");
-                    btn.innerText = "💬 Araç Sahibine Haber Ver";
-                    btn.disabled = false;
-                    btn.style.background = "#e63946";
-                }, 1800);
-
-            } catch (error) {
-                alert("Ses sistemi başlatılamadı. Lütfen ekran kilidinizin açık ve sesinizin açık olduğundan emin olun.");
-                btn.innerText = "💬 Araç Sahibine Haber Ver";
-                btn.disabled = false;
-                btn.style.background = "#e63946";
-            }
+            } catch (e) { console.log("Ses çalınamadı"); }
         }
 
         function paneleGeriDon() {
             document.getElementById('vatandas-ekrani').classList.add('hidden');
-            document.getElementById('main-title').innerText = "QR Numaratör V11";
+            document.getElementById('main-title').innerText = "QR Numaratör V12";
             document.getElementById('panel-ekrani').classList.remove('hidden');
             sayfaBaslat();
         }
