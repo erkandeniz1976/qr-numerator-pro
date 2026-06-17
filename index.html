@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>qr-numerator-pro</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; color: #333; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
+        button { background: #0070f3; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #0051b3; }
+        input { padding: 12px; width: 100%; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2 id="title">QR Numaratör</h2>
+        <p id="message">Sistem kontrol ediliyor...</p>
+
+        <!-- DURUM A: İlk Aktivasyon Ekranı -->
+        <div id="activation-zone" class="hidden">
+            <input type="text" id="recovery-input" placeholder="Kartonetteki Kurtarma Kodunu Girin">
+            <input type="password" id="pin-input" placeholder="4 Haneli PIN Belirleyin" maxlength="4">
+            <button onclick="activateQR()">Etiketi Anonim Aktive Et</button>
+        </div>
+
+        <!-- DURUM B: Müşteri Yönetim Paneli -->
+        <div id="owner-zone" class="hidden">
+            <h4 style="margin-bottom:8px; text-align:left;">Görünür Modu Seçin:</h4>
+            <button onclick="alert('Mod Değiştirildi')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
+            <button onclick="alert('Mod Değiştirildi')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
+            <button onclick="alert('Mod Değiştirildi')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
+        </div>
+    </div>
+
+    <script>
+        // DOĞRUDAN BAĞLANTI PROTOKOLÜ (KORUMALARI AŞAN ESNEK YAPI)
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_sXO0B5TS_e-h0egb8bKyjQ_qWxrP0Jg"; 
+
+        // URL parametrelerini tamamen devre dışı bırakıp doğrudan aktivasyonu tetikliyoruz (Tarayıcı Engel Kırıcı)
+        async function init() {
+            document.getElementById('message').innerText = "Bu QR etiketi henüz aktive edilmemiş. Sahibiyseniz bilgileri girerek hemen başlatın.";
+            document.getElementById('activation-zone').classList.remove('hidden');
+        }
+
+        async function activateQR() {
+            const recoveryInput = document.getElementById('recovery-input').value.trim();
+            const pinInput = document.getElementById('pin-input').value.trim();
+
+            if(!recoveryInput || !pinInput) { alert("Lütfen boş alan bırakmayın."); return; }
+            
+            // Eğer girişler doğruysa doğrudan müşteri paneline atlatıyoruz (Local Simülatör)
+            if(recoveryInput === "testkodu123" && pinInput === "1923") {
+                alert("Aktivasyon Başarılı!");
+                document.getElementById('activation-zone').classList.add('hidden');
+                document.getElementById('title').innerText = "🛠️ Müşteri Paneli";
+                document.getElementById('message').innerText = "Etiketiniz aktif. Numaranız tamamen gizlidir.";
+                document.getElementById('owner-zone').classList.remove('hidden');
+            } else {
+                alert("Hatalı kod veya şifre girdiniz.");
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
