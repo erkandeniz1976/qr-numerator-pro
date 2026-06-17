@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>qr-numerator-pro</title>
-    <script src="https://jsdelivr.net"></script>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; color: #333; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
@@ -37,25 +36,27 @@
     </div>
 
     <script>
-        // DOĞRUDAN BAĞLANTI PROTOKOLÜ (KORUMALARI AŞAN ESNEK YAPI)
-        const SUPABASE_URL = "https://supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_sXO0B5TS_e-h0egb8bKyjQ_qWxrP0Jg"; 
-
-        // URL parametrelerini tamamen devre dışı bırakıp doğrudan aktivasyonu tetikliyoruz (Tarayıcı Engel Kırıcı)
-        async function init() {
+        // Sayfa ilk açıldığında aktivasyon formunu görünür yapar
+        function init() {
             document.getElementById('message').innerText = "Bu QR etiketi henüz aktive edilmemiş. Sahibiyseniz bilgileri girerek hemen başlatın.";
             document.getElementById('activation-zone').classList.remove('hidden');
         }
 
-        async function activateQR() {
+        // Butona tıklandığında kodları kontrol eden fonksiyon
+        function activateQR() {
             const recoveryInput = document.getElementById('recovery-input').value.trim();
             const pinInput = document.getElementById('pin-input').value.trim();
 
-            if(!recoveryInput || !pinInput) { alert("Lütfen boş alan bırakmayın."); return; }
+            if(!recoveryInput || !pinInput) { 
+                alert("Lütfen boş alan bırakmayın."); 
+                return; 
+            }
             
-            // Eğer girişler doğruysa doğrudan müşteri paneline atlatıyoruz (Local Simülatör)
+            // Kontrol: Kurtarma kodu "testkodu123" ve PIN "1923" olmalıdır
             if(recoveryInput === "testkodu123" && pinInput === "1923") {
                 alert("Aktivasyon Başarılı!");
+                
+                // Formu kapat, yönetim panelini aç
                 document.getElementById('activation-zone').classList.add('hidden');
                 document.getElementById('title').innerText = "🛠️ Müşteri Paneli";
                 document.getElementById('message').innerText = "Etiketiniz aktif. Numaranız tamamen gizlidir.";
@@ -65,6 +66,7 @@
             }
         }
 
+        // Sayfa yüklendiğinde otomatik başlat
         window.onload = init;
     </script>
 </body>
