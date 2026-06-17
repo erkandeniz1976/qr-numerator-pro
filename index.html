@@ -3,125 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>qr-numerator-pro</title>
+    <title>qr-numerator-pro-v3</title>
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #f4f4f9; color: #333; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
-        button { background: #0070f3; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; font-weight: bold; transition: 0.2s; }
-        button:hover { background: #0051b3; }
+        body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
+        button { color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; font-weight: bold; transition: 0.2s; }
         input { padding: 12px; width: 100%; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .hidden { display: none; }
-        .badge { background: #e2e8f0; padding: 4px 8px; border-radius: 5px; font-size: 13px; font-weight: bold; }
+        .badge { background: #e2e8f0; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2 id="title">QR Numaratör</h2>
-        <p id="message">Sistem kontrol ediliyor...</p>
+        <h2 id="main-title" style="color: #0070f3;">QR Numaratör V3</h2>
+        <p id="main-message" style="font-size: 15px; color: #555;">Yükleniyor...</p>
 
-        <!-- DURUM A: İlk Aktivasyon Ekranı -->
-        <div id="activation-zone" class="hidden">
-            <input type="text" id="recovery-input" placeholder="Kartonetteki Kurtarma Kodunu Girin">
-            <input type="password" id="pin-input" placeholder="4 Haneli PIN Belirleyin" maxlength="4">
-            <button onclick="activateQR()">Etiketi Anonim Aktive Et</button>
-            <button onclick="simulateScan()" style="background:#6c757d; margin-top:20px;">🔍 QR Tarama Ekranını Test Et (Vatandaş Görünümü)</button>
+        <!-- EKRAN 1: Yönetici Paneli -->
+        <div id="panel-ekrani">
+            <h3 style="text-align: left; font-size: 16px; margin-top: 20px;">1. Modunuzu Seçin:</h3>
+            <button onclick="modDegistir('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
+            <button onclick="modDegistir('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
+            <button onclick="modDegistir('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
+            
+            <h3 style="text-align: left; font-size: 16px; margin-top: 25px;">2. Vatandaş Ne Görecek?</h3>
+            <button onclick="vatandasEkraniniAc()" style="background:#6c757d;">🔍 Vatandaş Ekranını Aç</button>
         </div>
 
-        <!-- DURUM B: Müşteri Yönetim Paneli -->
-        <div id="owner-zone" class="hidden">
-            <h4 style="margin-bottom:8px; text-align:left;">Görünür Modu Seçin:</h4>
-            <button onclick="modSec('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
-            <button onclick="modSec('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
-            <button onclick="modSec('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
-            <button onclick="cikisYap()" style="background:#dc3545; margin-top:20px;">❌ Panelden Çıkış Yap</button>
-        </div>
-
-        <!-- DURUM C: Dışarıdan Taratan Kişinin Göreceği Ekran (Vatandaş Görünümü) -->
-        <div id="visitor-zone" class="hidden">
+        <!-- EKRAN 2: Vatandaşın Göreceği Ekran -->
+        <div id="vatandas-ekrani" class="hidden">
             <div style="margin: 20px 0;">
-                <span id="visitor-status-badge" class="badge">Mod: Yükleniyor</span>
+                <span id="aktif-mod-rozeti" class="badge">Mod: Belirlenmedi</span>
             </div>
-            <p id="visitor-instruction" style="font-weight:bold; font-size:16px;"></p>
-            <button onclick="alert('Araç sahibine SMS bildirimi gönderildi! (Simülasyon)')" style="background:#28a745; font-size:16px; padding:15px;">💬 Araç Sahibine Haber Ver</button>
-            <button onclick="window.location.reload()" style="background:#6c757d; font-size:13px;">↩️ Ana Sayfaya Dön</button>
+            <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
+            <button onclick="alert('Araç sahibine SMS bildirimi gönderildi! (Simülasyon)')" style="background:#28a745; font-size:16px; padding:15px; margin-top: 15px;">💬 Araç Sahibine Haber Ver</button>
+            <button onclick="paneleGeriDon()" style="background:#0070f3; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
     </div>
 
     <script>
-        // Sayfa ilk açıldığında çalışacak fonksiyon
-        function init() {
-            document.getElementById('message').innerText = "Bu QR etiketi henüz aktive edilmemiş. Sahibiyseniz bilgileri girerek hemen başlatın.";
-            document.getElementById('activation-zone').classList.remove('hidden');
+        // Sayfa ilk yüklendiğinde çalışır
+        function sayfaBaslat() {
+            const kayıtlıMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
+            document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız gizlidir.<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
         }
 
-        // Aktivasyon doğrulama fonksiyonu
-        function activateQR() {
-            const recoveryInput = document.getElementById('recovery-input').value.trim();
-            const pinInput = document.getElementById('pin-input').value.trim();
+        // Mod butonlarına basıldığında çalışır
+        function modDegistir(yeniMod) {
+            localStorage.setItem("secili_qr_modu", yeniMod);
+            document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız gizlidir.<br><b>Güncel Durum:</b> ${yeniMod}`;
+            alert(`Sistem başarıyla güncellendi:\n${yeniMod}`);
+        }
 
-            if(!recoveryInput || !pinInput) { 
-                alert("Lütfen boş alan bırakmayın."); 
-                return; 
+        // Vatandaş Ekranını Göster butonuna basıldığında çalışır
+        function vatandasEkraniniAc() {
+            // Panel alanını gizle
+            document.getElementById('panel-ekrani').classList.add('hidden');
+            
+            // Başlıkları vatandaş için değiştir
+            document.getElementById('main-title').innerText = "📱 QR İletişim Sistemi";
+            document.getElementById('main-message').innerText = "Bu aracın sahibi numarasını gizli tutarak sizinle iletişim kurmaktadır.";
+            
+            // Hafızadaki modu oku
+            const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
+            document.getElementById('aktif-mod-rozeti').innerText = `Durum: ${guncelMod}`;
+            
+            // Mesaj içeriğini ayarla
+            const mesajAlani = document.getElementById('vatandas-mesaji');
+            if(guncelMod.includes("Hatalı Park")) {
+                mesajAlani.innerText = "🚗 Araç hatalı park edilmiştir. Sahibi kısa süre içinde gelecektir. Aşağıdaki butondan bildirim gönderebilirsiniz.";
+            } else if(guncelMod.includes("Acil Durum")) {
+                mesajAlani.innerText = "⚠️ Araç başında acil bir durum söz konusudur! Lütfen aşağıdaki butonu kullanarak hemen sahibine ulaşın.";
+            } else if(guncelMod.includes("Toplantı")) {
+                mesajAlani.innerText = "💼 Araç sahibi şu anda meşguldür veya toplantıdadır. Çok acil değilse lütfen bekleyiniz veya bildirim gönderiniz.";
             }
-            
-            if(recoveryInput === "testkodu123" && pinInput === "1923") {
-                alert("Aktivasyon Başarılı!");
-                
-                document.getElementById('activation-zone').classList.add('hidden');
-                document.getElementById('title').innerText = "🛠️ Müşteri Paneli";
-                
-                const mevcutMod = localStorage.getItem("secilen_mod") || "🚗 Hatalı Park Modu";
-                document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${mevcutMod})`;
-                
-                document.getElementById('owner-zone').classList.remove('hidden');
-            } else {
-                alert("Hatalı kod veya şifre girdiniz.");
-            }
+
+            // Vatandaş ekranını görünür yap
+            document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        // Seçilen modu hafızaya kaydeden fonksiyon
-        function modSec(modAdi) {
-            localStorage.setItem("secilen_mod", modAdi);
-            alert(`✅ Görünür mod başarıyla güncellendi: ${modAdi}`);
-            document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${modAdi})`;
+        // Geri dön butonuna basıldığında çalışır
+        function paneleGeriDon() {
+            document.getElementById('vatandas-ekrani').classList.add('hidden');
+            document.getElementById('main-title').innerText = "QR Numaratör V3";
+            document.getElementById('panel-ekrani').classList.remove('hidden');
+            sayfaBaslat();
         }
 
-        // SİMÜLASYON: Dışarıdan biri QR kodu taratınca ne görecek?
-        function simulateScan() {
-            // Tüm yönetim ve aktivasyon alanlarını gizle
-            document.getElementById('activation-zone').classList.add('hidden');
-            document.getElementById('owner-zone').classList.add('hidden');
-            
-            // Başlık ve mesaj alanını ziyaretçiye göre güncelle
-            document.getElementById('title').innerText = "📱 QR İletişim Sistemi";
-            document.getElementById('message').innerText = "Bu aracın sahibi numarasını gizli tutarak sizinle iletişim kurmaktadır.";
-            
-            // Hafızadaki aktif modu oku, yoksa varsayılan yap
-            const aktifMod = localStorage.getItem("secilen_mod") || "🚗 Hatalı Park Modu";
-            
-            // Rozeti güncelle
-            document.getElementById('visitor-status-badge').innerText = `Durum: ${aktifMod}`;
-            
-            // Moda göre vatandaşa gösterilecek talimat metnini ayarla
-            const talimatAlani = document.getElementById('visitor-instruction');
-            if(aktifMod.includes("Hatalı Park")) {
-                talimatAlani.innerText = "🚗 Araç hatalı park edilmiştir. Sahibi kısa süre içinde gelecektir. Aşağıdaki butondan bildirim gönderebilirsiniz.";
-            } else if(aktifMod.includes("Acil Durum")) {
-                talimatAlani.innerText = "⚠️ Araç başında acil bir durum söz konusudur! Lütfen aşağıdaki butonu kullanarak hemen sahibine ulaşın.";
-            } else if(aktifMod.includes("Toplantı")) {
-                talimatAlani.innerText = "💼 Araç sahibi şu anda meşguldür veya toplantıdadır. Çok acil değilse lütfen bekleyiniz veya bildirim gönderiniz.";
-            }
-            
-            // Ziyaretçi ekranını aç
-            document.getElementById('visitor-zone').classList.remove('hidden');
-        }
-
-        function cikisYap() {
-            window.location.reload();
-        }
-
-        window.onload = init;
+        window.onload = sayfaBaslat;
     </script>
 </body>
 </html>
