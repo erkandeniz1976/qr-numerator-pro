@@ -29,9 +29,9 @@
         <!-- DURUM B: Müşteri Yönetim Paneli -->
         <div id="owner-zone" class="hidden">
             <h4 style="margin-bottom:8px; text-align:left;">Görünür Modu Seçin:</h4>
-            <button onclick="alert('Mod Değiştirildi')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
-            <button onclick="alert('Mod Değiştirildi')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
-            <button onclick="alert('Mod Değiştirildi')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
+            <button onclick="modSec('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
+            <button onclick="modSec('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
+            <button onclick="modSec('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
             document.getElementById('activation-zone').classList.remove('hidden');
         }
 
-        // Butona tıklandığında kodları kontrol eden fonksiyon
+        // Aktivasyon doğrulama fonksiyonu
         function activateQR() {
             const recoveryInput = document.getElementById('recovery-input').value.trim();
             const pinInput = document.getElementById('pin-input').value.trim();
@@ -59,11 +59,27 @@
                 // Formu kapat, yönetim panelini aç
                 document.getElementById('activation-zone').classList.add('hidden');
                 document.getElementById('title').innerText = "🛠️ Müşteri Paneli";
-                document.getElementById('message').innerText = "Etiketiniz aktif. Numaranız tamamen gizlidir.";
+                
+                // Hafızadaki modu kontrol et ve ekrana yaz
+                const mevcutMod = localStorage.getItem("secilen_mod") || "Seçilmedi";
+                document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${mevcutMod})`;
+                
                 document.getElementById('owner-zone').classList.remove('hidden');
             } else {
                 alert("Hatalı kod veya şifre girdiniz.");
             }
+        }
+
+        // Seçilen modu hafızaya (LocalStorage) kaydeden fonksiyon
+        function modSec(modAdi) {
+            // Tarayıcı hafızasına modu kaydediyoruz
+            localStorage.setItem("secilen_mod", modAdi);
+            
+            // Kullanıcıya bilgi mesajı veriyoruz
+            alert(`✅ Görünür mod başarıyla güncellendi: ${modAdi}`);
+            
+            // Ekrandaki bilgi yazısını anlık olarak değiştiriyoruz
+            document.getElementById('message').innerText = `Etiketiniz aktif. Numaranız tamamen gizlidir.\n(Şu Anki Mod: ${modAdi})`;
         }
 
         // Sayfa yüklendiğinde otomatik başlat
