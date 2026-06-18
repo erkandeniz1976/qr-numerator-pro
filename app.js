@@ -1,11 +1,10 @@
 // =================================================================
-// 1. FIREBASE BAĞLANTI AYARLARI
+// 1. FIREBASE BAĞLANTI AYARLARI (Canlı Sunucu Bağlantısı)
 // =================================================================
-// Lütfen burayı kendi Firebase konsolunuzdan aldığınız bilgilerle DOLDURUN.
 const firebaseConfig = {
   apiKey: "AIzaSyCJpkgYGXdNqATunee0ro5NuduE5XohwIU",
-  authDomain: "qr-numarator-23ba9.firebaseapp.com",
-  databaseURL: "https://qr-numarator-23ba9-default-rtdb.firebaseio.com",
+  authDomain: "://firebaseapp.com",
+  databaseURL: "https://firebaseio.com",
   projectId: "qr-numarator-23ba9",
   storageBucket: "qr-numarator-23ba9.firebasestorage.app",
   messagingSenderId: "23341888407",
