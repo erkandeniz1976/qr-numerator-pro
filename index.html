@@ -105,8 +105,10 @@
         
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
-        db.goOffline(); // GitHub ağ kilidini kırmak için bağlantı tazeleyici
-        db.goOnline();
+        const db = firebase.database();
+db.app.options.databaseURL = firebaseConfig.databaseURL;
+if (db.INTERNAL) { db.INTERNAL.forceWebSockets = false; }
+
         
         // 2. KULLANICI SEÇİM ID SÜRECİ
         const urlParams = new URLSearchParams(window.location.search);
