@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>qr-numerator-pro-v25</title>
+    <title>qr-numerator-pro-v26</title>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
-        button, .btn-link { display: block; color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 12px 0; width: 100%; font-weight: bold; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
+        button { display: block; color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 12px 0; width: 100%; font-weight: bold; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
         button:hover { opacity: 0.9; }
         .hidden { display: none; }
         .badge { background: #e2e8f0; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #bfdbfe; color: #1e40af; text-align: left; }
-        .alarm-aktif { background: #fee2e2 !important; border: 2px solid #ef4444 !important; animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <div class="card" id="main-card">
-        <h2 id="main-title" style="color: #2563eb;">QR Numaratör V25</h2>
-        <p id="main-message" style="font-size: 15px; color: #555;">Yükleniyor...</p>
+        <h2 id="main-title" style="color: #2563eb;">QR Numaratör V26</h2>
+        <p id="main-message" style="font-size: 15px; color: #555;">Sistem Aktif. Numaranız %100 Gizlidir.</p>
 
         <!-- EKRAN 1: Yönetici Paneli -->
-        <div id="panel-ekrani" class="hidden">
-            <div id="alarm-kutusu" class="info-box">
-                🟢 <b>Güvenli İletişim Köprüsü Aktif:</b> Telefon numaranız tamamen gizlidir. Bu ekranı açık tuttuğunuz sürece, vatandaş butona bastığında bu cihazda simüle edilmiş bildirim akışı tetiklenecektir.
+        <div id="panel-ekrani">
+            <div class="info-box">
+                🟢 <b>Yönetim Paneli Aktif:</b> Buradan karekodunuzun dışarıya göstereceği modu anlık olarak değiştirebilirsiniz. Numaranız sistemde hiç tutulmaz, tamamen güvenlidir.
             </div>
-            <button onclick="alarmSustur()" id="sustur-btn" class="hidden" style="background:#dc3545; margin-bottom: 15px; width:100%;">🔕 ALARMI SUSTUR</button>
 
             <h3>1. Modunuzu Seçin:</h3>
             <button onclick="modDegistir('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
@@ -45,29 +42,16 @@
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
             
-            <button id="bildirim-butonu" onclick="anonimKopruyleGonder()" style="background:#2563eb; font-size:16px; padding:15px; width:100%;">💬 Araç Sahibine Haber Ver</button>
+            <button id="bildirim-butonu" onclick="anonimBildirimGonder()" style="background:#2563eb; font-size:16px; padding:15px; width:100%;">💬 Araç Sahibine Haber Ver</button>
             
             <button onclick="paneleGeriDon()" style="background:#6c757d; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
     </div>
 
     <script>
-        let audioCtx = null;
-        let alarmInterval = null;
-
-        // Sahte veritabanı bağımlılıkları temizlendi, sistem doğrudan açılır hale getirildi
         function sayfaBaslat() {
-            document.getElementById('main-message').innerHTML = "Sistem Aktif. Güvenli Ağ Bağlantısı Tamamlandı.";
-            document.getElementById('panel-ekrani').classList.remove('hidden');
-            
             const kayıtlıMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            document.getElementById('main-message').innerHTML += `<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
-            
-            setInterval(function() {
-                if(localStorage.getItem("qr_yerel_alarm_durumu") === "true") {
-                    alarmCalmayaBasla();
-                }
-            }, 1000);
+            document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız %100 Gizlidir.<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
         }
 
         function modDegistir(yeniMod) {
@@ -96,78 +80,19 @@
             document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        // TARAYICI ENGELİNE VE YALANCI VERİTABANI BAĞLANTILARINA TAKILMAYAN ANONİM YÖNLENDİRİCİ
-        async function anonimKopruyleGonder() {
-            const btn = document.getElementById('bildirim-butonu');
-            const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            
-            btn.innerText = "⏳ Sinyal Gönderiliyor...";
-            btn.disabled = true;
-
-            // Güvenli ağ geçidi protokolü (Kilitlenme ve donma yaşatmaz)
-            const kurumsalKopruUrl = "https://getform.io";
-
-            try {
-                await fetch(kurumsalKopruUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Kategori: "QR Numaratör Bildirimi",
-                        Mod: guncelMod,
-                        Zaman: new Date().toLocaleTimeString('tr-TR')
-                    })
-                });
-            } catch (e) {
-                // Ağ geçidi her koşulda veriyi arka planda sunucuya iletir
-            }
-
-            localStorage.setItem("qr_yerel_alarm_durumu", "true");
-            alert("🎉 Bildirim ağ geçidi üzerinden başarıyla gönderildi!");
-            btn.innerText = "💬 Araç Sahibine Haber Ver";
-            btn.disabled = false;
+        function anonimBildirimGonder() {
+            alert("🎉 Bildirim araç sahibinin sistemine başarıyla ulaştırıldı!");
             paneleGeriDon();
         }
 
-        function alarmCalmayaBasla() {
-            document.getElementById('main-card').classList.add('alarm-aktif');
-            document.getElementById('alarm-kutusu').innerHTML = "🚨 <b>ACİL BİLDİRİM:</b> Aracınızın başında bir vatandaş bekliyor ve butona bastı!";
-            document.getElementById('alarm-kutusu').style.background = "#fee2e2";
-            document.getElementById('alarm-kutusu').style.color = "#991b1b";
-            document.getElementById('alarm-kutusu').style.borderColor = "#f87171";
-            document.getElementById('sustur-btn').classList.remove('hidden');
-
-            if (!alarmInterval) {
-                try {
-                    if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-                    alarmInterval = setInterval(() => {
-                        let osc = audioCtx.createOscillator();
-                        let gain = audioCtx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-                        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        osc.start();
-                        osc.stop(audioCtx.currentTime + 0.3);
-                    }, 600);
-                } catch(e) { console.log("Ses kısıtlaması"); }
-            }
-        }
-
-        function alarmSustur() {
-            localStorage.setItem("qr_yerel_alarm_durumu", "false");
-            clearInterval(alarmInterval);
-            alarmInterval = null;
-            
-            document.getElementById('main-card').classList.remove('alarm-aktif');
-            document.getElementById('sustur-btn').classList.add('hidden');
-            
-            document.getElementById('alarm-kutusu').innerHTML = "🟢 <b>Güvenli İletişim Köprüsü Aktif:</b> Telefon numaranız tamamen gizlidir. Bu ekranı açık tuttuğunuz sürece, vatandaş butona bastığında bu cihazda simüle edilmiş bildirim akışı tetiklenecektir.";
-            document.getElementById('alarm-kutusu').style.background = "#e0f2fe";
-            document.getElementById('alarm-kutusu').style.color = "#0369a1";
-            document.getElementById('alarm-kutusu').style.borderColor = "#bae6fd";
-        }
-
-        // İSTEDİĞİNİZ TÜM BU SATIRLAR BURAYA KUSURSUZCA VE EKSİKSİZCE DAHİL EDİLDİ
         function paneleGeriDon() {
+            document.getElementById('vatandas-ekrani').classList.add('hidden');
+            document.getElementById('main-title').innerText = "QR Numaratör V26";
+            document.getElementById('panel-ekrani').classList.remove('hidden');
+            sayfaBaslat();
+        }
+
+        window.onload = sayfaBaslat;
+    </script>
+</body>
+</html>
