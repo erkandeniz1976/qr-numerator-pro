@@ -4,14 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR PREMIUM - Akıllı Araç İletişim Sistemi</title>
-    
-    <!-- Hata Vermeyen En Kararlı Firebase Kütüphaneleri (v8 Eski Sözdizimi) -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
-    
-    <!-- QR Kod Kütüphanesi -->
     <script src="https://cloudflare.com"></script>
-    
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; text-align: left; }
@@ -26,26 +21,20 @@
         input:focus { border-color: #d97706; }
         .mod-container, .mesaj-container { display: flex; flex-direction: column; gap: 2px; }
         .loading { font-style: italic; color: #64748b; text-align: center; }
-        
         .mesaj-listesi-kutusu { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 13px; }
         .mesaj-item { background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .mesaj-vakit { font-size: 10px; color: #94a3b8; float: right; }
-
         .brand-header { text-align: center; margin-bottom: 5px; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; color: #1e3a8a; }
         .brand-sub { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #d97706; margin-top: -5px; margin-bottom: 20px; font-weight: bold; }
         .brand-footer { text-align: center; margin-top: 25px; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 15px; }
     </style>
 </head>
 <body>
-
     <div class="card">
         <div class="brand-header">QR <span style="color: #d97706;">PREMIUM</span></div>
         <div class="brand-sub">Akıllı Araç İletişim Sistemi</div>
-
         <h2 id="main-title" style="color: #1e3a8a; font-size: 18px; border-top: 1px solid #f1f5f9; padding-top: 15px;">Sürücü Kontrol Paneli</h2>
         <p id="main-message" class="loading">Güvenli bulut bağlantısı kuruluyor...</p>
-
-        <!-- EKRAN 1: Sürücü Yönetim Paneli -->
         <div id="panel-ekrani">
             <div class="info-box" style="background: #fff7ed; border-color: #ffedd5; color: #c2410c;">
                 🔔 <b>Gelen Canlı Mesajlar:</b>
@@ -55,12 +44,10 @@
                 <button id="btn-mesajlari-temizle" style="background:#dc2626; font-size:12px; padding:8px; margin-top:8px; width:auto; display:inline-block; float:right;">🗑️ Mesajları Temizle</button>
                 <div style="clear:both;"></div>
             </div>
-
             <div class="info-box">
                 🔍 <b>Mod Ara:</b>
                 <input type="text" id="mod-search" placeholder="Aramak için yazın..." style="margin-top:8px; margin-bottom:0;">
             </div>
-
             <h3 style="text-align: left; font-size: 15px; margin-top: 20px; color: #475569;">1. Durum Modunuzu Seçin:</h3>
             <div id="mod-listesi" class="mod-container">
                 <button class="mod-btn" style="background:#28a745;">🚗 Hatalı Park Modu</button>
@@ -68,44 +55,102 @@
                 <button class="mod-btn" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
                 <p id="hata-mesaji" class="hidden" style="color:#94a3b8; font-style:italic; text-align: center; margin: 10px 0;">Aradığınız mod bulunamadı...</p>
             </div>
-            
             <h3 style="text-align: left; font-size: 15px; margin-top: 20px; color: #475569;">2. Vatandaş Görünümü Testi:</h3>
             <button id="btn-vatandas-ekranini-ac" style="background:#6c757d;">🔍 Vatandaş Ekranını Aç (Simülasyon)</button>
-
             <h3 style="text-align: left; font-size: 15px; margin-top: 20px; color: #475569;">3. Aracınız İçin QR Kodunuz:</h3>
             <div class="info-box" style="background: #f8fafc; border-color: #cbd5e1; text-align: center;">
                 <p style="font-size: 12px; color: #64748b; margin-top: 0;">Aşağıdaki QR kodu yazdırıp aracınızın camına yapıştırabilirsiniz:</p>
                 <div id="qrcode-alanı" style="display: inline-block; padding: 10px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;"></div>
             </div>
         </div>
-
-        <!-- EKRAN 2: Vatandaşın Göreceği Ekran -->
         <div id="vatandas-ekrani" class="hidden">
             <div style="margin: 20px 0; text-align: center;">
                 <span id="aktif-mod-rozeti" class="badge">Mod: Yükleniyor...</span>
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00; margin-bottom: 20px;">Yükleniyor...</p>
-            
             <h3 style="text-align: left; font-size: 15px; color: #475569;">💬 Sürücüye Bildirmek İstediğiniz Durum:</h3>
-            
             <div class="mesaj-container">
                 <button class="hizli-mesaj-btn" style="background:#1e3a8a; padding:12px; font-size:14px;">📍 Aracınızın başına gelebilir misiniz?</button>
                 <button class="hizli-mesaj-btn" style="background:#ea580c; padding:12px; font-size:14px;">💡 Farlarınız açık kalmış!</button>
                 <button class="hizli-mesaj-btn" style="background:#dc2626; padding:12px; font-size:14px;">⚠️ Aracınıza çarptılar / Hasar var!</button>
                 <button class="hizli-mesaj-btn" style="background:#16a34a; padding:12px; font-size:14px;">🪟 Aracınızın camı açık kalmış.</button>
             </div>
-
             <button id="btn-guvenli-ara" style="background:#059669; font-size:16px; padding:15px; width:100%; margin-top: 15px;">🌐 Sürücüyü İnternetten Güvenli Ara</button>
-            
             <button id="btn-panele-geri-don" style="background:#6c757d; font-size:14px; margin-top: 20px;">↩— Sürücü Paneline Geri Dön</button>
         </div>
-
         <div class="brand-footer">
             🔒 KVKK Korumalı Anonim İletişim Altyapısı<br>
             © 2026 QR PREMIUM. Tüm hakları saklıdır.
         </div>
     </div>
-
-    <script src="app.js?v=2"></script>
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCJpkgYGXdNqATunee0ro5NuduE5XohwIU",
+          authDomain: "://firebaseapp.com",
+          databaseURL: "https://firebaseio.com",
+          projectId: "qr-numarator-23ba9",
+          storageBucket: "qr-numarator-23ba9.firebasestorage.app",
+          messagingSenderId: "23341888407",
+          appId: "1:23341888407:web:0359c86e3662a15b808ad2"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+        const urlParams = new URLSearchParams(window.location.search);
+        let secureID = urlParams.get('id');
+        if (!secureID) {
+            secureID = 'qr_' + Math.random().toString(36).substring(2, 8);
+            const yeniUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + secureID;
+            window.history.pushState({ path: yeniUrl }, '', yeniUrl);
+        }
+        window.onload = function() {
+            canliMesajHavuzunuGuncelle();
+            butonOlaylariniBagla();
+            qrKodUret();
+            db.ref('guvenli_araclar/' + secureID).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (!data) { db.ref('guvenli_araclar/' + secureID).set({ aktif_mod: "🚗 Hatalı Park Modu" }); return; }
+                const mainMessageNode = document.getElementById('main-message');
+                if (mainMessageNode) { mainMessageNode.className = ""; mainMessageNode.innerHTML = `Güvenli Kod: <b>${secureID}</b><br>Sistem Aktif (Gizlilik %100 Korunuyor).<br><b>Güncel Durum:</b> ${data.aktif_mod}`; }
+                const aktifModRozetiNode = document.getElementById('aktif-mod-rozeti');
+                if (aktifModRozetiNode) { aktifModRozetiNode.innerText = `Durum: ${data.aktif_mod}`; }
+                let mesaj = "ℹ️ Sürücüye ulaşmak için lütfen aşağıdaki durum butonlarından birine dokunun.";
+                if (data.aktif_mod && data.aktif_mod.includes("Park")) mesaj = "🚗 Kısa süreliğine hatalı park etmek zorunda kaldım. Lütfen durumunuzu belirten hazır butonlara tıklayarak bana bildirin, hemen geleceğim.";
+                if (data.aktif_mod && data.aktif_mod.includes("Acil")) mesaj = "⚠️ Acil bir durum nedeniyle buradayım. Bana anında bildirim yollamak için lütfen aşağıdaki hazır mesaj butonlarını kullanın.";
+                if (data.aktif_mod && data.aktif_mod.includes("Toplantı")) mesaj = "💼 Önemli bir toplantıdayım. Aşağıdaki acil durum mesaj butonlarından birine basarsanız ekranıma anında düşecektir.";
+                const vatandasMesajiNode = document.getElementById('vatandas-mesaji');
+                if (vatandasMesajiNode) { vatandasMesajiNode.innerText = mesaj; }
+            });
+        };
+        function butonOlaylariniBagla() {
+            const modButonlari = document.getElementsByClassName('mod-btn');
+            for (let buton of modButonlari) { buton.addEventListener('click', function() { db.ref('guvenli_araclar/' + secureID).update({ aktif_mod: this.innerText }); }); }
+            const hizliMesajButonlari = document.getElementsByClassName('hizli-mesaj-btn');
+            for (let buton of hizliMesajButonlari) { buton.addEventListener('click', function() { const gonderilecekMetin = this.innerText; const suankiSaat = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); db.ref('guvenli_araclar/' + secureID + '/mesajlar').push({ metin: gonderilecekMetin, tarih: suankiSaat, okundu: false }).then(() => { alert('🎉 Seçtiğiniz durum sürücüye tamamen gizli ve anonim olarak başarıyla iletildi!'); }); }); }
+            const btnTemizle = document.getElementById('btn-mesajlari-temizle');
+            if (btnTemizle) { btnTemizle.addEventListener('click', () => { if(confirm("Tüm gelen mesaj geçmişini silmek istediğinize emin misiniz?")) { db.ref('guvenli_araclar/' + secureID + '/mesajlar').remove().then(() => { alert("🗑️ Mesaj geçmişi başarıyla temizlendi!"); }); } }); }
+            const btnAra = document.getElementById('btn-guvenli-ara');
+            if (btnAra) { btnAra.addEventListener('click', () => { alert('🌐 Numara olmadan, WebRTC tabanlı dijital sesli arama altyapısı simüle ediliyor...'); }); }
+            document.getElementById('mod-search').addEventListener('keyup', function() { const aramaTerimi = this.value.trim().toLowerCase(); const butonlar = document.getElementsByClassName('mod-btn'); let bulunanModSayisi = 0; for (let i = 0; i < butonlar.length; i++) { if (butonlar[i].innerText.toLowerCase().includes(aramaTerimi)) { butonlar[i].classList.remove('hidden'); bulunanModSayisi++; } else { butonlar[i].classList.add('hidden'); } } const hataMesaji = document.getElementById('hata-mesaji'); if (hataMesaji) { hataMesaji.classList.toggle('hidden', bulunanModSayisi > 0); } });
+            document.getElementById('btn-vatandas-ekranini-ac').addEventListener('click', () => { document.getElementById('panel-ekrani').classList.add('hidden'); document.getElementById('vatandas-ekrani').classList.remove('hidden'); document.getElementById('main-title').innerText = "📱 Korumalı İletişim Sistemi"; });
+            document.getElementById('btn-panele-geri-don').addEventListener('click', () => { document.getElementById('vatandas-ekrani').classList.add('hidden'); document.getElementById('panel-ekrani').classList.remove('hidden'); document.getElementById('main-title').innerText = "QR PREMIUM"; });
+        }
+        function canliMesajHavuzunuGuncelle() {
+            const mesajKutusu = document.getElementById('sürücü-mesaj-havuzu');
+            if (!mesajKutusu) return;
+            db.ref('guvenli_araclar/' + secureID + '/mesajlar').on('value', (snapshot) => {
+                const mesajlar = snapshot.val();
+                if (!mesajlar) { mesajKutusu.innerHTML = `<div style="color: #94a3b8; font-style: italic; text-align: center;">Henüz mesaj yok...</div>`; return; }
+                mesajKutusu.innerHTML = "";
+                Object.keys(mesajlar).reverse().forEach(key => { const m = mesajlar[key]; const div = document.createElement('div'); div.className = "mesaj-item"; div.innerHTML = `<span class="mesaj-vakit">${m.tarih}</span> 💬 ${m.metin}`; mesajKutusu.appendChild(div); });
+            });
+        }
+        function qrKodUret() {
+            const qrAlani = document.getElementById("qrcode-alanı");
+            if (!qrAlani) return;
+            qrAlani.innerHTML = "";
+            new QRCode(qrAlani, { text: window.location.href, width: 160, height: 160, colorDark : "#1e3a8a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+        }
+    </script>
 </body>
 </html>
+
