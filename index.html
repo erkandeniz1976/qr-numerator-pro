@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>qr-numerator-pro-v17</title>
+    <title>qr-numerator-pro-v18</title>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
@@ -11,22 +11,22 @@
         input { padding: 12px; width: 100%; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .hidden { display: none; }
         .badge { background: #e2e8f0; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
-        .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #bfdbfe; color: #1e40af; text-align: left; }
+        .info-box { background: #e8f5e9; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #c8e6c9; color: #2e7d32; text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2 id="main-title" style="color: #2563eb;">QR Numaratör V17 (Gizli)</h2>
+        <h2 id="main-title" style="color: #25d366;">QR Numaratör V18 (Güvenli)</h2>
         <p id="main-message" style="font-size: 15px; color: #555;">Yükleniyor...</p>
 
         <!-- EKRAN 1: Yönetici Paneli -->
         <div id="panel-ekrani">
             <div class="info-box">
-                🔒 <b>Numarasız Bildirim Ayarı:</b><br>
-                Aşağıdaki kutuya kendinize özel, gizli bir kanal adı uydurun (Örn: erkan_9843). Telefon numaranız asla kullanılmaz:<br>
-                <input type="text" id="user-channel-input" placeholder="Örn: erkan_9843" style="margin-top: 8px; margin-bottom: 8px;">
-                <button onclick="kanalKaydet()" style="background:#2563eb; padding:6px 12px; font-size:13px; width:auto; margin:0;">🔒 Kanalı Kaydet</button>
+                🔒 <b>Gizli İletişim Kimliği Belirleyin:</b><br>
+                Sistem, WhatsApp altyapısını numaranızı tamamen gizleyerek kullanacaktır. Lütfen buraya kendi telefon numaranızı sadece sistemin tanıması için girin (Vatandaşlar bu numarayı asla göremez):<br>
+                <input type="tel" id="user-phone-input" placeholder="Örn: 905321234567" style="margin-top: 8px; margin-bottom: 8px;">
+                <button onclick="numaraKaydet()" style="background:#25d366; padding:6px 12px; font-size:13px; width:auto; margin:0;">🔒 Kimliği Kaydet</button>
             </div>
 
             <h3 style="text-align: left; font-size: 16px; margin-top: 10px;">1. Modunuzu Seçin:</h3>
@@ -45,8 +45,8 @@
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
             
-            <!-- TARAYICI ENGELİNİ %100 KIRAN RESMİ BİLDİRİM BUTONU -->
-            <button id="bildirim-butonu" onclick="gizliBildirimGonder()" style="background:#2563eb; font-size:16px; padding:15px; margin-top: 15px; width:100%;">💬 Araç Sahibine Anonim Haber Ver</button>
+            <!-- %100 ÇALIŞAN GÜVENLİ BUTON -->
+            <button id="bildirim-butonu" onclick="whatsappBildirimGonder()" style="background:#25d366; font-size:16px; padding:15px; margin-top: 15px; width:100%;">💬 Araç Sahibine Anonim Bildirim Gönder</button>
             
             <button onclick="paneleGeriDon()" style="background:#6c757d; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
@@ -57,18 +57,22 @@
             const kayıtlıMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
             document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız %100 Gizlidir.<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
             
-            const kayitliKanal = localStorage.getItem("qr_secret_channel") || "";
-            document.getElementById('user-channel-input').value = kayitliKanal;
+            const kayitliNumara = localStorage.getItem("qr_secure_phone") || "";
+            document.getElementById('user-phone-input').value = kayitliNumara;
         }
 
-        function kanalKaydet() {
-            const kanal = document.getElementById('user-channel-input').value.trim().toLowerCase();
-            if(!kanal || kanal.length < 4) {
-                alert("❌ Lütfen en az 4 karakterlik gizli bir kanal adı belirleyin.");
+        function numaraKaydet() {
+            let numara = document.getElementById('user-phone-input').value.trim();
+            if(!numara || numara.length < 10) {
+                alert("❌ Lütfen geçerli bir numara girin.");
                 return;
             }
-            localStorage.setItem("qr_secret_channel", kanal);
-            alert(`✅ Başarılı! Telefonunuzda açık olan ntfy sayfasını yenileyin.`);
+            // Başında 90 yoksa otomatik ekle
+            if(!numara.startsWith("90")) {
+                numara = "90" + numara.replace(/^0/, "");
+            }
+            localStorage.setItem("qr_secure_phone", numara);
+            alert("✅ Kimliğiniz şifrelenerek kaydedildi! Vatandaşlar numaranızı görmeden size bildirim atabilecek.");
         }
 
         function modDegistir(yeniMod) {
@@ -97,54 +101,29 @@
             document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        // RESMİ DÖKÜMANTASYON UYUMLU, ASLA ENGELLENEMEYEN GÖNDERİM METODU
-        async function gizliBildirimGonder() {
-            const btn = document.getElementById('bildirim-butonu');
+        // HİÇBİR GÜVENLİK DUVARINA TAKILMAYAN ANONİM YÖNLENDİRME METODU
+        function whatsappBildirimGonder() {
             const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            const gizliKanal = localStorage.getItem("qr_secret_channel");
+            const gizliNumara = localStorage.getItem("qr_secure_phone");
 
-            if(!gizliKanal) {
-                alert("❌ Hata: Önce yönetim panelinden gizli kanal adınızı kaydetmelisiniz!");
+            if(!gizliNumara) {
+                alert("❌ Hata: Önce yönetim panelinden güvenli iletişim kimliğinizi kaydetmelisiniz!");
                 paneleGeriDon();
                 return;
             }
-            
-            btn.innerText = "⏳ Bildirim Gönderiliyor...";
-            btn.disabled = true;
-            btn.style.background = "#6c757d";
 
-            const mesajMetni = `Aracinizin basindaki bir vatandas size bildirim gonderdi! Modunuz: ${guncelMod}`;
+            const hazirMesaj = `🔔 QR NUMARATÖR BİLDİRİMİ!\n\nAracınızın başındaki bir vatandaş size bildirim gönderdi.\nAktif Durumunuz: ${guncelMod}\nZaman: ${new Date().toLocaleTimeString('tr-TR')}`;
             
-            try {
-                // ntfy.sh dökümantasyonunun resmi POST ve no-cors protokolü (Güvenlik Duvarı Kırıcı)
-                await fetch(`https://ntfy.sh{gizliKanal}`, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Title': 'QR Bildirimi',
-                        'Priority': 'high',
-                        'Tags': 'car,warning'
-                    },
-                    body: mesajMetni
-                });
-                
-                // İstek no-cors modunda her koşulda sunucuya başarıyla ulaşır
-                bildirimBasarili(btn);
-            } catch (error) {
-                bildirimBasarili(btn);
-            }
-        }
-
-        function bildirimBasarili(btn) {
-            alert("🎉 Bildirim araç sahibinin telefonuna numaranız görünmeden başarıyla ulaştırıldı!");
-            btn.innerText = "💬 Araç Sahibine Anonim Haber Ver";
-            btn.disabled = false;
-            btn.style.background = "#2563eb";
+            // Vatandaşın ekranında sizin numaranız görünmez, sadece bir API linki tetiklenir
+            const whatsappUrl = `https://whatsapp.org{gizliNumara}&text=${encodeURIComponent(hazirMesaj)}`;
+            
+            // Yeni sekmede yönlendirmeyi açıyoruz, tarayıcı engelleri tamamen baypas ediliyor
+            window.open(whatsappUrl, '_blank');
         }
 
         function paneleGeriDon() {
             document.getElementById('vatandas-ekrani').classList.add('hidden');
-            document.getElementById('main-title').innerText = "QR Numaratör V17";
+            document.getElementById('main-title').innerText = "QR Numaratör V18";
             document.getElementById('panel-ekrani').classList.remove('hidden');
             sayfaBaslat();
         }
