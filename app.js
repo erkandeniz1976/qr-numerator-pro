@@ -1,5 +1,5 @@
 // =================================================================
-// 1. FIREBASE BAĞLANTI AYARLARI (Canlı Sunucu Bağlantısı)
+// 1. FIREBASE BAĞLANTI AYARLARI
 // =================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCJpkgYGXdNqATunee0ro5NuduE5XohwIU",
@@ -18,14 +18,16 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 
 // =================================================================
-// 2. GÜVENLİ ID YÖNETİMİ (Zorunlu Adres Çubuğu Güncelleyici)
+// 2. GÜVENLİ ID YÖNETİMİ (Kilitlenmeyi Önleyen Arka Plan Güncelleyici)
 // =================================================================
 const urlParams = new URLSearchParams(window.location.search);
 let secureID = urlParams.get('id');
 
+// Eğer adreste id= yoksa, sayfayı YENİLEMEDEN adres çubuğuna kodu ekler (Kilitlenmeyi çözen kısım)
 if (!secureID) {
     secureID = 'qr_' + Math.random().toString(36).substring(2, 8);
-    window.location.href = window.location.pathname + "?id=" + secureID;
+    const yeniUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + secureID;
+    window.history.pushState({ path: yeniUrl }, '', yeniUrl);
 }
 
 // =================================================================
@@ -36,9 +38,11 @@ window.onload = function() {
     butonOlaylariniBagla();
     qrKodUret();
 
+    // Firebase Sunucusuna Bağlan ve Verileri Dinle
     db.ref('guvenli_araclar/' + secureID).on('value', (snapshot) => {
         const data = snapshot.val();
         
+        // Eğer sunucuda bu ID ilk defa açılıyorsa varsayılan modu oluştur
         if (!data) {
             db.ref('guvenli_araclar/' + secureID).set({
                 aktif_mod: "🚗 Hatalı Park Modu"
@@ -46,6 +50,7 @@ window.onload = function() {
             return;
         }
 
+        // loading yazısını kaldırıp paneli canlandır
         const mainMessageNode = document.getElementById('main-message');
         if (mainMessageNode) {
             mainMessageNode.className = ""; 
@@ -57,6 +62,7 @@ window.onload = function() {
             aktifModRozetiNode.innerText = `Durum: ${data.aktif_mod}`;
         }
         
+        // Vatandaşa gösterilecek özel açıklamalar
         let mesaj = "ℹ️ Sürücüye ulaşmak için lütfen aşağıdaki durum butonlarından birine dokunun.";
         if (data.aktif_mod && data.aktif_mod.includes("Park")) mesaj = "🚗 Kısa süreliğine hatalı park etmek zorunda kaldım. Lütfen durumunuzu belirten hazır butonlara tıklayarak bana bildirin, hemen geleceğim.";
         if (data.aktif_mod && data.aktif_mod.includes("Acil")) mesaj = "⚠️ Acil bir durum nedeniyle buradayım. Bana anında bildirim yollamak için lütfen aşağıdaki hazır mesaj butonlarını kullanın.";
@@ -66,6 +72,9 @@ window.onload = function() {
         if (vatandasMesajiNode) {
             vatandasMesajiNode.innerText = mesaj;
         }
+    }, (error) => {
+        console.error("Firebase Veri Okuma Hatası: ", error);
+        document.getElementById('main-message').innerText = "Veritabanı bağlantı hatası! Lütfen tüzük (rules) ayarlarını kontrol edin.";
     });
 };
 
@@ -73,6 +82,7 @@ window.onload = function() {
 // 4. İŞLEVSEL FONKSİYONLAR VE BUTON TETİKLEYİCİLERİ
 // =================================================================
 function butonOlaylariniBagla() {
+    // Sürücü Mod Değiştirme Sistemi
     const modButonlari = document.getElementsByClassName('mod-btn');
     for (let buton of modButonlari) {
         buton.addEventListener('click', function() {
@@ -80,6 +90,7 @@ function butonOlaylariniBagla() {
         });
     }
 
+    // Vatandaşın Hazır Hızlı Mesajlara Tıklama Olayı
     const hizliMesajButonlari = document.getElementsByClassName('hizli-mesaj-btn');
     for (let buton of hizliMesajButonlari) {
         buton.addEventListener('click', function() {
@@ -96,6 +107,7 @@ function butonOlaylariniBagla() {
         });
     }
 
+    // Sürücü Panelindeki Mesajları Veritabanından Tamamen Silme
     const btnTemizle = document.getElementById('btn-mesajlari-temizle');
     if (btnTemizle) {
         btnTemizle.addEventListener('click', () => {
@@ -107,6 +119,7 @@ function butonOlaylariniBagla() {
         });
     }
 
+    // İnternet Araması
     const btnAra = document.getElementById('btn-guvenli-ara');
     if (btnAra) {
         btnAra.addEventListener('click', () => {
@@ -114,6 +127,7 @@ function butonOlaylariniBagla() {
         });
     }
 
+    // Arama Filtreleme (Sürücü Paneli)
     const modSearch = document.getElementById('mod-search');
     if (modSearch) {
         modSearch.addEventListener('keyup', function() {
@@ -135,6 +149,7 @@ function butonOlaylariniBagla() {
         });
     }
 
+    // Ekran Değiştirme Tetikleyicileri
     const btnVatandasAc = document.getElementById('btn-vatandas-ekranini-ac');
     if (btnVatandasAc) {
         btnVatandasAc.addEventListener('click', () => {
@@ -154,6 +169,7 @@ function butonOlaylariniBagla() {
     }
 }
 
+// Sürücü Panelindeki Gelen Mesajlar Listesini Canlı Güncelleyen Fonksiyon
 function canliMesajHavuzunuGuncelle() {
     const mesajKutusu = document.getElementById('sürücü-mesaj-havuzu');
     if (!mesajKutusu) return;
