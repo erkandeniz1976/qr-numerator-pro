@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Numaratör</title>
+    <title>QR Numaratör PRO</title>
     <style>
         body { font-family: system-ui, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
@@ -11,12 +11,14 @@
         input { padding: 10px; width: 100%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .hidden { display: none !important; }
         .info-box { background: #eff6ff; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; border: 1px solid #bfdbfe; text-align: left; }
+        .badge { background: #e2e8f0; padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; color: #1e40af; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2 id="main-title" style="color: #2563eb;">QR Numaratör</h2>
+        <h2 id="main-title" style="color: #2563eb;">QR Numaratör Panel</h2>
+        <div style="margin-bottom: 15px;"><span id="id-rozeti" class="badge">ID: Yükleniyor...</span></div>
         <p id="main-message">Yükleniyor...</p>
 
         <!-- EKRAN 1: SÜRÜCÜ PANELİ -->
@@ -51,7 +53,7 @@
 
         <!-- EKRAN 2: VATANDAŞ EKRANI -->
         <div id="vatandas-ekrani" class="hidden">
-            <p id="vatandas-mesaji" style="background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00; font-weight: bold;"></p>
+            <p id="vatandas-mesaji" style="background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00; font-weight: bold; color:#856404;"></p>
             
             <!-- SÜRÜCÜ İSTERSE AÇILACAK NUMARA ALANI -->
             <div id="vatandas-numara-alani" class="hidden" style="background: #fdf2f8; padding: 10px; border-radius: 6px; border: 1px solid #fbcfe8; margin-bottom: 10px; font-weight: bold;">
@@ -65,10 +67,19 @@
     </div>
 
     <script>
+        let AKTIF_ID = "000";
+
         function sayfaBaslat() {
-            const kayitliMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            const numaraDurumu = localStorage.getItem("qr_numara_gosterilsin_mi") || "false";
-            const kayitliNumara = localStorage.getItem("qr_surucu_numarasi") || "";
+            // URL'deki ID parametresini çeker (Örn: sayfa.html?id=101)
+            const urlParams = new URLSearchParams(window.location.search);
+            AKTIF_ID = urlParams.get('id') || "Ana_Kullanici";
+            
+            document.getElementById('id-rozeti').innerText = `ID KODU: ${AKTIF_ID}`;
+
+            // Her ID'nin ayarını kendine özel hafızada saklar
+            const kayitliMod = localStorage.getItem(`qr_mod_${AKTIF_ID}`) || "🚗 Hatalı Park Modu";
+            const numaraDurumu = localStorage.getItem(`qr_goster_${AKTIF_ID}`) || "false";
+            const kayitliNumara = localStorage.getItem(`qr_numara_${AKTIF_ID}`) || "";
             
             let durumYazisi = numaraDurumu === "true" ? "Numaranız Açık 🔓" : "Numaranız Gizli 🔒";
             document.getElementById('main-message').innerHTML = `Sistem Aktif. ${durumYazisi}<br><b>Mod:</b> ${kayitliMod}`;
@@ -79,14 +90,14 @@
             const numara = document.getElementById('driver-phone').value.trim();
             if (gosterilsinMi && numara.length < 10) { alert("❌ Geçerli bir numara yazın!"); return; }
             
-            localStorage.setItem("qr_surucu_numarasi", numara);
-            localStorage.setItem("qr_numara_gosterilsin_mi", gosterilsinMi ? "true" : "false");
+            localStorage.setItem(`qr_numara_${AKTIF_ID}`, numara);
+            localStorage.setItem(`qr_goster_${AKTIF_ID}`, gosterilsinMi ? "true" : "false");
             alert(gosterilsinMi ? "🔓 Numara vatandaşa gösterilecek!" : "🔒 Numara gizlendi!");
             sayfaBaslat();
         }
 
         function modSec(yeniMod) {
-            localStorage.setItem("secili_qr_modu", yeniMod);
+            localStorage.setItem(`qr_mod_${AKTIF_ID}`, yeniMod);
             sayfaBaslat();
             alert(`Mod güncellendi: ${yeniMod}`);
         }
@@ -111,9 +122,9 @@
             document.getElementById('panel-ekrani').classList.add('hidden');
             document.getElementById('main-title').innerText = "📱 QR İletişim";
             
-            const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            const numaraGosterilsinMi = localStorage.getItem("qr_numara_gosterilsin_mi") === "true";
-            const kayitliNumara = localStorage.getItem("qr_surucu_numarasi") || "";
+            const guncelMod = localStorage.getItem(`qr_mod_${AKTIF_ID}`) || "🚗 Hatalı Park Modu";
+            const numaraGosterilsinMi = localStorage.getItem(`qr_goster_${AKTIF_ID}`) === "true";
+            const kayitliNumara = localStorage.getItem(`qr_numara_${AKTIF_ID}`) || "";
             
             if (numaraGosterilsinMi && kayitliNumara) {
                 document.getElementById('vatandas-numara-alani').classList.remove('hidden');
