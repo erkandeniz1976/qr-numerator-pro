@@ -1,157 +1,178 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Numaratör PRO</title>
-    <style>
-        body { font-family: system-ui, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
-        button { display: block; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 0; width: 100%; font-weight: bold; }
-        input { padding: 10px; width: 100%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .hidden { display: none !important; }
-        .info-box { background: #eff6ff; padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; border: 1px solid #bfdbfe; text-align: left; }
-        .badge { background: #e2e8f0; padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; color: #1e40af; }
-    </style>
-</head>
-<body>
-
-    <div class="card">
-        <h2 id="main-title" style="color: #2563eb;">QR Numaratör Panel</h2>
-        <div style="margin-bottom: 15px;"><span id="id-rozeti" class="badge">ID: Yükleniyor...</span></div>
-        <p id="main-message">Yükleniyor...</p>
-
-        <!-- EKRAN 1: SÜRÜCÜ PANELİ -->
-        <div id="panel-ekrani">
-            <!-- NUMARA AYAR ALANI -->
-            <div class="info-box" style="background: #f0fdf4; border-color: #bbf7d0;">
-                ⚙️ <b>Numara Gizlilik Ayarı:</b>
-                <input type="tel" id="driver-phone" placeholder="Telefon numaranızı yazın" style="margin-top: 5px;">
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="numaraAyarla(true)" style="background:#16a34a; margin:0; font-size:13px;">👁️ Göster</button>
-                    <button onclick="numaraAyarla(false)" style="background:#dc2626; margin:0; font-size:13px;">🔒 Gizle</button>
-                </div>
-            </div>
-
-            <!-- ARAMA SLOTU -->
-            <div class="info-box">
-                🔍 <b>Mod Ara:</b>
-                <input type="text" id="mod-search" onkeyup="modFiltrele()" placeholder="Mod adı yazın..." style="margin-top: 5px; margin-bottom: 0;">
-            </div>
-
-            <!-- MOD BUTONLARI -->
-            <h3 style="text-align: left; font-size: 15px;">1. Mod Seçin:</h3>
-            <div id="mod-listesi">
-                <button class="mod-btn" onclick="modSec('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
-                <button class="mod-btn" onclick="modSec('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
-                <button class="mod-btn" onclick="modSec('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
-                <p id="hata-mesaji" class="hidden" style="color:#94a3b8; font-style:italic;">Mod bulunamadı...</p>
-            </div>
-            
-            <button onclick="vatandasEkraniniAc()" style="background:#6c757d; margin-top: 15px;">🔍 Vatandaş Ekranını Aç (Test)</button>
-        </div>
-
-        <!-- EKRAN 2: VATANDAŞ EKRANI -->
-        <div id="vatandas-ekrani" class="hidden">
-            <p id="vatandas-mesaji" style="background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00; font-weight: bold; color:#856404;"></p>
-            
-            <!-- SÜRÜCÜ İSTERSE AÇILACAK NUMARA ALANI -->
-            <div id="vatandas-numara-alani" class="hidden" style="background: #fdf2f8; padding: 10px; border-radius: 6px; border: 1px solid #fbcfe8; margin-bottom: 10px; font-weight: bold;">
-                📞 Telefon: <a id="phone-link" href="#"></a>
-            </div>
-
-            <button onclick="alert('💬 Mesaj iletildi!')" style="background:#2563eb;">💬 Mesaj Gönder</button>
-            <button onclick="alert('🌐 Arama başlatılıyor...')" style="background:#059669;">🌐 İnternetten Ara</button>
-            <button onclick="paneleGeriDon()" style="background:#6c757d; margin-top: 15px;">↩️ Panele Geri Dön</button>
-        </div>
-    </div>
-
-    <script>
         let AKTIF_ID = "000";
 
+        // Sayfa yüklendiğinde çalışacak ana başlatıcı fonksiyon
         function sayfaBaslat() {
-            // URL'deki ID parametresini çeker (Örn: sayfa.html?id=101)
             const urlParams = new URLSearchParams(window.location.search);
-            AKTIF_ID = urlParams.get('id') || "Ana_Kullanici";
-            
-            document.getElementById('id-rozeti').innerText = `ID KODU: ${AKTIF_ID}`;
+            AKTIF_ID = urlParams.get('id');
 
-            // Her ID'nin ayarını kendine özel hafızada saklar
-            const kayitliMod = localStorage.getItem(`qr_mod_${AKTIF_ID}`) || "🚗 Hatalı Park Modu";
-            const numaraDurumu = localStorage.getItem(`qr_goster_${AKTIF_ID}`) || "false";
-            const kayitliNumara = localStorage.getItem(`qr_numara_${AKTIF_ID}`) || "";
+            // Eğer parametresiz ana site linki açılırsa otomatik Fabrika Moduna geç
+            if (!AKTIF_ID) {
+                document.getElementById('id-rozeti').innerText = "FABRİKA MODU";
+                document.getElementById('main-title').innerText = "QR Üretim Fabrikası";
+                document.getElementById('main-message').innerText = "Matbaa basımı için toplu QR kodu üretebilirsiniz.";
+                ekranDegistir('qr-uretim-fabrikasi');
+                return;
+            }
+
+            // ID varsa normal etiket modunda başlat
+            document.getElementById('id-rozeti').innerText = "ID: #" + AKTIF_ID;
             
-            let durumYazisi = numaraDurumu === "true" ? "Numaranız Açık 🔓" : "Numaranız Gizli 🔒";
-            document.getElementById('main-message').innerHTML = `Sistem Aktif. ${durumYazisi}<br><b>Mod:</b> ${kayitliMod}`;
-            document.getElementById('driver-phone').value = kayitliNumara;
+            // Yerel depolamada bu ID kayıtlı mı kontrol et (Simüle edilmiş veritabanı)
+            let etiketVerisi = localStorage.getItem("qr_" + AKTIF_ID);
+
+            if (!etiketVerisi) {
+                // Etiket daha önce kurulmamışsa aktivasyon ekranına yönlendir
+                document.getElementById('main-message').innerText = "Kurulmamış Etiket";
+                ekranDegistir('aktivasyon-ekrani');
+            } else {
+                // Etiket aktifse vatandaş doğrudan durumu görür
+                document.getElementById('main-message').innerText = "Aktif Akıllı QR Etiketi";
+                vatandasEkraniniAc();
+            }
         }
 
-        function numaraAyarla(gosterilsinMi) {
-            const numara = document.getElementById('driver-phone').value.trim();
-            if (gosterilsinMi && numara.length < 10) { alert("❌ Geçerli bir numara yazın!"); return; }
-            
-            localStorage.setItem(`qr_numara_${AKTIF_ID}`, numara);
-            localStorage.setItem(`qr_goster_${AKTIF_ID}`, gosterilsinMi ? "true" : "false");
-            alert(gosterilsinMi ? "🔓 Numara vatandaşa gösterilecek!" : "🔒 Numara gizlendi!");
-            sayfaBaslat();
+        // Ekranlar arası geçişi sağlayan yardımcı fonksiyon
+        function ekranDegistir(hedefEkranId) {
+            const ekranlar = ['aktivasyon-ekrani', 'login-ekrani', 'panel-ekrani', 'vatandas-ekrani', 'qr-uretim-fabrikasi'];
+            ekranlar.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(hedefEkranId).classList.remove('hidden');
         }
 
-        function modSec(yeniMod) {
-            localStorage.setItem(`qr_mod_${AKTIF_ID}`, yeniMod);
-            sayfaBaslat();
-            alert(`Mod güncellendi: ${yeniMod}`);
+        // 0. ADIM: ETIKETI AKTIF ETME
+        function etiketAktifEt() {
+            let kanal = document.getElementById('act-channel').value.trim();
+            let pin = document.getElementById('act-pin').value.trim();
+
+            if (!kanal || pin.length < 4) {
+                alert("Lütfen geçerli bir gizli kanal adı yazın ve 4 haneli PIN belirleyin!");
+                return;
+            }
+
+            let yeniEtiket = {
+                kanal: kanal,
+                pin: pin,
+                aktifMod: "🚗 Hatalı Park Modu" // Varsayılan ilk mod
+            };
+
+            localStorage.setItem("qr_" + AKTIF_ID, JSON.stringify(yeniEtiket));
+            alert("🚀 Etiket başarıyla aktifleştirildi! Yönetim paneline aktarılıyorsunuz.");
+            ekranDegistir('panel-ekrani');
         }
 
+        // 1. ADIM: SÜRÜCÜ GİRİŞİ DOĞRULAMA
+        function paneleGeriGirisYap() {
+            let girilenPin = document.getElementById('login-pin').value;
+            let etiketVerisi = JSON.parse(localStorage.getItem("qr_" + AKTIF_ID));
+
+            if (etiketVerisi && etiketVerisi.pin === girilenPin) {
+                document.getElementById('login-pin').value = ""; // Temizle
+                ekranDegistir('panel-ekrani');
+            } else {
+                alert("❌ Hatalı PIN kodu girdiniz! Lütfen tekrar deneyin.");
+            }
+        }
+
+        // 2. ADIM: MOD SEÇİMİ VE ARAMA FİLTRESİ
+        function modSec(secilenMod) {
+            let etiketVerisi = JSON.parse(localStorage.getItem("qr_" + AKTIF_ID));
+            if (etiketVerisi) {
+                etiketVerisi.aktifMod = secilenMod;
+                localStorage.setItem("qr_" + AKTIF_ID, JSON.stringify(etiketVerisi));
+                alert("Durum başarıyla güncellendi: " + secilenMod);
+            }
+        }
+
+        // Modları anlık arama/filtreleme fonksiyonu
         function modFiltrele() {
-            const aramaTerimi = document.getElementById('mod-search').value.trim().toLowerCase();
-            const butonlar = document.getElementsByClassName('mod-btn');
-            let sayac = 0;
+            let input = document.getElementById('mod-search').value.toLowerCase();
+            let butonlar = document.getElementsByClassName('mod-btn');
+            let eşleşmeVar = false;
 
             for (let i = 0; i < butonlar.length; i++) {
-                if (butonlar[i].innerText.toLowerCase().includes(aramaTerimi)) {
-                    butonlar[i].style.display = "block";
-                    sayac++;
+                let modMetni = butonlar[i].innerText.toLowerCase();
+                if (modMetni.includes(input)) {
+                    butonlar[i].classList.remove('hidden');
+                    eşleşmeVar = true;
                 } else {
-                    butonlar[i].style.display = "none";
+                    butonlar[i].classList.add('hidden');
                 }
             }
-            document.getElementById('hata-mesaji').style.display = sayac === 0 ? "block" : "none";
+
+            // Hiçbir mod bulunamazsa hata mesajı göster
+            let hataMesaji = document.getElementById('hata-mesaji');
+            if (eşleşmeVar) {
+                hataMesaji.classList.add('hidden');
+            } else {
+                hataMesaji.classList.remove('hidden');
+            }
         }
 
+        // 3. ADIM: VATANDAŞ EKRANI GÖRÜNÜMÜ
         function vatandasEkraniniAc() {
-            document.getElementById('panel-ekrani').classList.add('hidden');
-            document.getElementById('main-title').innerText = "📱 QR İletişim";
-            
-            const guncelMod = localStorage.getItem(`qr_mod_${AKTIF_ID}`) || "🚗 Hatalı Park Modu";
-            const numaraGosterilsinMi = localStorage.getItem(`qr_goster_${AKTIF_ID}`) === "true";
-            const kayitliNumara = localStorage.getItem(`qr_numara_${AKTIF_ID}`) || "";
-            
-            if (numaraGosterilsinMi && kayitliNumara) {
-                document.getElementById('vatandas-numara-alani').classList.remove('hidden');
-                document.getElementById('phone-link').innerText = kayitliNumara;
-                document.getElementById('phone-link').href = `tel:${kayitliNumara}`;
-            } else {
-                document.getElementById('vatandas-numara-alani').classList.add('hidden');
-            }
-            
-            const msg = document.getElementById('vatandas-mesaji');
-            if(guncelMod.includes("Hatalı Park")) msg.innerText = "🚗 Araç hatalı park edilmiştir. Sürücü kısa süre içinde gelecektir.";
-            else if(guncelMod.includes("Acil Durum")) msg.innerText = "⚠️ Araç başında acil bir durum var! Lütfen hemen haber verin.";
-            else if(guncelMod.includes("Toplantı")) msg.innerText = "💼 Araç sahibi şu anda meşguldür. Lütfen bekleyiniz.";
+            let etiketVerisi = JSON.parse(localStorage.getItem("qr_" + AKTIF_ID));
+            let mesajAlani = document.getElementById('vatandas-mesaji');
 
-            document.getElementById('vatandas-ekrani').classList.remove('hidden');
+            if (etiketVerisi) {
+                mesajAlani.innerText = "Sürücü Durumu: " + etiketVerisi.aktifMod;
+            } else {
+                mesajAlani.innerText = "Sürücü Durumu: 🚗 Hatalı Park Modu (Önizleme)";
+            }
+            ekranDegistir('vatandas-ekrani');
         }
 
         function paneleGeriDon() {
-            document.getElementById('vatandas-ekrani').classList.add('hidden');
-            document.getElementById('main-title').innerText = "QR Numaratör";
-            document.getElementById('panel-ekrani').classList.remove('hidden');
-            document.getElementById('mod-search').value = "";
-            modFiltrele();
-            sayfaBaslat();
+            ekranDegistir('login-ekrani');
         }
 
+        function cikisYap() {
+            ekranDegistir('login-ekrani');
+        }
+
+        // 4. ADIM: MATBAA İÇİN TOPLU QR KODU ÜRETİM FABRİKASI
+        function topluQrKoduUret() {
+            let startId = parseInt(document.getElementById('start-id').value);
+            let endId = parseInt(document.getElementById('end-id').value);
+            let baskiAlani = document.getElementById('qr-baski-alani');
+
+            if (isNaN(startId) || isNaN(endId) || startId > endId) {
+                alert("Lütfen geçerli bir başlangıç ve bitiş ID aralığı girin!");
+                return;
+            }
+
+            baskiAlani.innerHTML = ""; // Eski üretimleri temizle
+
+            // Belirtilen aralıkta döngü kurarak 5x5 cm şablonları çoğalt
+            for (let id = startId; id <= endId; id++) {
+                // Mevcut sayfanın URL'ini temel alarak her ID için benzersiz link oluşturur
+                let targetUrl = window.location.origin + window.location.pathname + "?id=" + id;
+                
+                // Güvenli Google Charts API kullanarak dinamik QR kodu oluşturma linki
+                let qrImgSrc = "https://googleapis.com" + encodeURIComponent(targetUrl) + "&choe=UTF-8";
+
+                // Matbaa şablonu HTML yapısı
+                let sablonHtml = `
+                    <div class="print-canvas">
+                        <div class="print-title">AKILLI QR ETİKETİ</div>
+                        <div class="qr-wrapper">
+                            <img src="${qrImgSrc}" alt="QR #${id}" style="width:100%; height:100%; display:block;">
+                            <div class="phone-icon-center">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="print-footer" style="text-align:center; font-weight:bold; margin-top:2mm;">
+                            SERİ NO: #${id} <br>
+                            <span style="font-size:3pt; font-weight:normal;">Kameranızla taratıp sürücüye ulaşın.</span>
+                        </div>
+                    </div>
+                `;
+                baskiAlani.innerHTML += sablonHtml;
+            }
+        }
+
+        // Sayfa yüklendiğinde kurulumu otomatik tetikle
         window.onload = sayfaBaslat;
     </script>
-</body>
-</html>
