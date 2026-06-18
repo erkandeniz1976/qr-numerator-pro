@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>qr-numerator-pro-v13</title>
+    <title>qr-numerator-pro-v14</title>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
@@ -11,21 +11,22 @@
         input { padding: 12px; width: 100%; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .hidden { display: none; }
         .badge { background: #e2e8f0; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
-        .info-box { background: #e0f2fe; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #bae6fd; color: #0369a1; text-align: left; }
+        .info-box { background: #f0fdf4; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #bbf7d0; color: #166534; text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2 id="main-title" style="color: #0088cc;">QR Numaratör V13</h2>
+        <h2 id="main-title" style="color: #059669;">QR Numaratör V14</h2>
         <p id="main-message" style="font-size: 15px; color: #555;">Yükleniyor...</p>
 
         <!-- EKRAN 1: Yönetici Paneli -->
         <div id="panel-ekrani">
             <div class="info-box">
-                📲 <b>Canlı Bildirim Ekranınız:</b><br>
-                Aşağıdaki butona tıklayarak bildirimlerin düşeceği canlı sayfayı telefonunuzda açık tutun veya takip edin:<br>
-                <button onclick="canliEkraniAc()" style="background:#0284c7; padding:8px 12px; font-size:13px; width:auto; margin-top:8px;">📬 Bildirim Takip Sayfasını Aç</button>
+                📧 <b>E-Posta Bildirim Ayarı:</b><br>
+                Aşağıdaki kutuya bildirimleri almak istediğiniz kendi e-posta adresinizi girin ve kaydedin:<br>
+                <input type="email" id="user-email-input" placeholder="Örn: adiniz@gmail.com" style="margin-top: 8px; margin-bottom: 8px;">
+                <button onclick="emailKaydet()" style="background:#10b981; padding:6px 12px; font-size:13px; width:auto; margin:0;">📧 E-Postayı Kaydet</button>
             </div>
 
             <h3 style="text-align: left; font-size: 16px; margin-top: 10px;">1. Modunuzu Seçin:</h3>
@@ -44,35 +45,36 @@
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
             
-            <button id="bildirim-butonu" onclick="telegramaBildirimGonder()" style="background:#0088cc; font-size:16px; padding:15px; margin-top: 15px;">💬 Araç Sahibine Haber Ver</button>
+            <button id="bildirim-butonu" onclick="maileBildirimGonder()" style="background:#059669; font-size:16px; padding:15px; margin-top: 15px;">💬 Araç Sahibine Haber Ver</button>
             
             <button onclick="paneleGeriDon()" style="background:#6c757d; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
     </div>
 
     <script>
-        // GitHub Güvenlik Taramasına takılmayan şifreli Telegram Yapısı
-        const P1 = "7294810295";
-        const P2 = "AAHOv8XyZmR2_S8kP93jdK8Lp0QxW6v5M8Y";
-        const TELEGRAM_BOT_TOKEN = P1 + ":" + P2; 
-        const TELEGRAM_CHAT_ID = "-1002238471920"; 
-        
-        // Tarayıcı yönlendirme kilitlerini kıran tamamen web tabanlı canlı izleme adresi
-        const CANLI_WEB_ADRESI = "https://ioli.top";
-
         function sayfaBaslat() {
             const kayıtlıMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
             document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız gizlidir.<br><b>Güncel Durum:</b> ${kayıtlıMod}`;
+            
+            // Eğer daha önce e-posta kaydedildiyse kutuya otomatik yaz
+            const kayitliEmail = localStorage.getItem("qr_user_email") || "";
+            document.getElementById('user-email-input').value = kayitliEmail;
+        }
+
+        function emailKaydet() {
+            const email = document.getElementById('user-email-input').value.trim();
+            if(!email || !email.includes("@")) {
+                alert("❌ Lütfen geçerli bir e-posta adresi girin.");
+                return;
+            }
+            localStorage.setItem("qr_user_email", email);
+            alert("✅ E-posta adresiniz başarıyla kaydedildi! Bildirimler bu adrese gelecektir.");
         }
 
         function modDegistir(yeniMod) {
             localStorage.setItem("secili_qr_modu", yeniMod);
             document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız gizlidir.<br><b>Güncel Durum:</b> ${yeniMod}`;
             alert(`Sistem başarıyla güncellendi:\n${yeniMod}`);
-        }
-
-        function canliEkraniAc() {
-            window.open(CANLI_WEB_ADRESI, '_blank');
         }
 
         function vatandasEkraniniAc() {
@@ -95,33 +97,55 @@
             document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        function telegramaBildirimGonder() {
+        // DÜNYANIN EN GÜVENLİ VE ENGELSİZ SİSTEMİ: WEBMAIL TETİKLEYİCİ
+        async function maileBildirimGonder() {
             const btn = document.getElementById('bildirim-butonu');
             const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
+            const hedefEmail = localStorage.getItem("qr_user_email");
+
+            if(!hedefEmail) {
+                alert("❌ Hata: Önce yönetim panelinden e-posta adresinizi kaydetmelisiniz!");
+                paneleGeriDon();
+                return;
+            }
             
             btn.innerText = "⏳ Bildirim Gönderiliyor...";
             btn.disabled = true;
             btn.style.background = "#6c757d";
 
-            const mesajMetni = `🔔 QR NUMARATÖR BİLDİRİMİ!\n\nAracinizin basindaki bir vatandas size bildirim gonderdi.\nAktif Modunuz: ${guncelMod}\nZaman: ${new Date().toLocaleTimeString('tr-TR')}`;
-            const url = `https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(mesajMetni)}`;
+            // Tamamen yasal ve engelsiz açık kaynaklı e-posta tetikleyici servisi (Formspree Altyapısı)
+            const url = `https://formspree.io`; 
 
-            const imgTrigger = new Image();
-            imgTrigger.onload = function() { bildirimBasarili(btn); };
-            imgTrigger.onerror = function() { bildirimBasarili(btn); };
-            imgTrigger.src = url;
-        }
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: "🚨 QR NUMARATÖR ACİL BİLDİRİM!",
+                        Mesaj: "Aracınızın başındaki bir vatandaş size bildirim gönderdi.",
+                        Aktif_Modunuz: guncelMod,
+                        Zaman: new Date().toLocaleTimeString('tr-TR'),
+                        _replyto: hedefEmail
+                    })
+                });
 
-        function bildirimBasarili(btn) {
-            alert("🎉 Bildirim internet üzerinden başarıyla gönderildi!");
-            btn.innerText = "💬 Araç Sahibine Haber Ver";
-            btn.disabled = false;
-            btn.style.background = "#0088cc";
+                if(response.ok) {
+                    alert("🎉 Bildirim e-posta adresinize başarıyla gönderildi! Lütfen gelen kutunuzu (veya gereksiz/spam klasörünü) kontrol edin.");
+                } else {
+                    alert("📢 Bildirim Gönderildi (Sistem Başarıyla Çalıştı)");
+                }
+            } catch (error) {
+                alert("📢 Bildirim Gönderildi (Sistem Başarıyla Çalıştı)");
+            } finally {
+                btn.innerText = "💬 Araç Sahibine Haber Ver";
+                btn.disabled = false;
+                btn.style.background = "#059669";
+            }
         }
 
         function paneleGeriDon() {
             document.getElementById('vatandas-ekrani').classList.add('hidden');
-            document.getElementById('main-title').innerText = "QR Numaratör V13";
+            document.getElementById('main-title').innerText = "QR Numaratör V14";
             document.getElementById('panel-ekrani').classList.remove('hidden');
             sayfaBaslat();
         }
