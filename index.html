@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR PREMIUM - Akıllı Araç İletişim Sistemi</title>
     
-    <!-- Firebase Kütüphaneleri -->
+    <!-- Hata Vermeyen En Kararlı Firebase Kütüphaneleri (v8 Eski Sözdizimi) -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
     
@@ -27,12 +27,10 @@
         .mod-container, .mesaj-container { display: flex; flex-direction: column; gap: 2px; }
         .loading { font-style: italic; color: #64748b; text-align: center; }
         
-        /* Gelen Mesajlar Kutusu İçin Stil */
         .mesaj-listesi-kutusu { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 13px; }
         .mesaj-item { background: white; padding: 8px; border-radius: 5px; margin-bottom: 5px; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .mesaj-vakit { font-size: 10px; color: #94a3b8; float: right; }
 
-        /* Kurumsal Tasarım Ögeleri (QR PREMIUM) */
         .brand-header { text-align: center; margin-bottom: 5px; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; color: #1e3a8a; }
         .brand-sub { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #d97706; margin-top: -5px; margin-bottom: 20px; font-weight: bold; }
         .brand-footer { text-align: center; margin-top: 25px; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 15px; }
@@ -41,7 +39,6 @@
 <body>
 
     <div class="card">
-        <!-- KURUMSAL MARKA BAŞLIĞI -->
         <div class="brand-header">QR <span style="color: #d97706;">PREMIUM</span></div>
         <div class="brand-sub">Akıllı Araç İletişim Sistemi</div>
 
@@ -50,13 +47,11 @@
 
         <!-- EKRAN 1: Sürücü Yönetim Paneli -->
         <div id="panel-ekrani">
-            <!-- CANLI GELEN MESAJLAR KUTUSU -->
             <div class="info-box" style="background: #fff7ed; border-color: #ffedd5; color: #c2410c;">
                 🔔 <b>Gelen Canlı Mesajlar:</b>
                 <div id="sürücü-mesaj-havuzu" class="mesaj-listesi-kutusu" style="margin-top: 8px;">
                     <div style="color: #94a3b8; font-style: italic; text-align: center;">Henüz mesaj yok...</div>
                 </div>
-                <!-- MESAJLARI TEMİZLE BUTONU -->
                 <button id="btn-mesajlari-temizle" style="background:#dc2626; font-size:12px; padding:8px; margin-top:8px; width:auto; display:inline-block; float:right;">🗑️ Mesajları Temizle</button>
                 <div style="clear:both;"></div>
             </div>
@@ -80,7 +75,6 @@
             <h3 style="text-align: left; font-size: 15px; margin-top: 20px; color: #475569;">3. Aracınız İçin QR Kodunuz:</h3>
             <div class="info-box" style="background: #f8fafc; border-color: #cbd5e1; text-align: center;">
                 <p style="font-size: 12px; color: #64748b; margin-top: 0;">Aşağıdaki QR kodu yazdırıp aracınızın camına yapıştırabilirsiniz:</p>
-                <!-- QR Kodun Basılacağı Alan -->
                 <div id="qrcode-alanı" style="display: inline-block; padding: 10px; background: white; border: 1px solid #e2e8f0; border-radius: 8px;"></div>
             </div>
         </div>
@@ -94,7 +88,6 @@
             
             <h3 style="text-align: left; font-size: 15px; color: #475569;">💬 Sürücüye Bildirmek İstediğiniz Durum:</h3>
             
-            <!-- HAZIR HIZLI MESAJ BUTONLARI -->
             <div class="mesaj-container">
                 <button class="hizli-mesaj-btn" style="background:#1e3a8a; padding:12px; font-size:14px;">📍 Aracınızın başına gelebilir misiniz?</button>
                 <button class="hizli-mesaj-btn" style="background:#ea580c; padding:12px; font-size:14px;">💡 Farlarınız açık kalmış!</button>
@@ -102,20 +95,17 @@
                 <button class="hizli-mesaj-btn" style="background:#16a34a; padding:12px; font-size:14px;">🪟 Aracınızın camı açık kalmış.</button>
             </div>
 
-            <!-- İNTERNETTEN SESLİ ARAMA BUTONU -->
             <button id="btn-guvenli-ara" style="background:#059669; font-size:16px; padding:15px; width:100%; margin-top: 15px;">🌐 Sürücüyü İnternetten Güvenli Ara</button>
             
             <button id="btn-panele-geri-don" style="background:#6c757d; font-size:14px; margin-top: 20px;">↩— Sürücü Paneline Geri Dön</button>
         </div>
 
-        <!-- KURUMSAL FOOTER GÜVEN DAMGASI -->
         <div class="brand-footer">
             🔒 KVKK Korumalı Anonim İletişim Altyapısı<br>
             © 2026 QR PREMIUM. Tüm hakları saklıdır.
         </div>
     </div>
 
-    <!-- JavaScript Beyni -->
     <script src="app.js"></script>
 </body>
 </html>
