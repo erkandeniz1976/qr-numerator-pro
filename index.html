@@ -10,6 +10,7 @@
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
     <script src="https://cloudflare.com"></script>
+    <!-- TASARIM STİLLERİ -->
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 20px; background: #eef2f7; color: #333; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; text-align: left; }
@@ -84,6 +85,7 @@
             <button id="btn-panele-geri-don" style="background:#6c757d; font-size:14px; margin-top: 20px;">↩— Sürücü Paneline Geri Dön</button>
         </div>
         
+        <!-- ALT BİLGİ -->
         <div class="brand-footer">
             🔒 KVKK Korumalı Anonim İletişim Altyapısı<br>
             © 2026 QR PREMIUM. Tüm hakları saklıdır.
@@ -103,7 +105,7 @@
         
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
-        db.goOffline(); 
+        db.goOffline(); // GitHub ağ kilidini kırmak için bağlantı tazeleyici
         db.goOnline();
         
         // 2. KULLANICI SEÇİM ID SÜRECİ
@@ -113,7 +115,7 @@
             secureID = 'qr_' + Math.random().toString(36).substring(2, 11);
         }
 
-        // 3. BAĞLANTI DURUMU TAKİBİ
+        // 3. BULUT BAĞLANTI DURUMU TAKİBİ
         const mainMsg = document.getElementById('main-message');
         db.ref('.info/connected').on('value', function(snapshot) {
             if (snapshot.val() === true) {
@@ -157,7 +159,7 @@
             btnGeri.addEventListener('click', () => {
                 vatandasEkrani.classList.add('hidden');
                 panelEkrani.classList.remove('hidden');
-                mainTitle.textContent = "Sürücü Kontrol Paneli";
+                mainTitle.textContent = "Sürücü Kontrol Panel";
             });
         }
     </script>
