@@ -9,33 +9,32 @@
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: inline-block; max-width: 400px; width: 100%; box-sizing: border-box; }
         button { display: block; color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 12px 0; width: 100%; font-weight: bold; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
         button:hover { opacity: 0.9; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .badge { background: #e2e8f0; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-weight: bold; display: inline-block; }
         .info-box { background: #eff6ff; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; border: 1px solid #bfdbfe; color: #1e40af; text-align: left; }
-        
-        /* ARAMA SLOTU STİLİ */
-        .search-box { position: relative; margin: 15px 0; width: 100%; box-sizing: border-box; }
-        .search-box input { padding: 12px 12px 12px 35px; width: 100%; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; transition: 0.2s; }
-        .search-box input:focus { border-color: #2563eb; }
-        .search-box::before { content: "🔍"; position: absolute; left: 12px; top: 12px; font-size: 15px; }
-        .no-result { color: #94a3b8; font-size: 14px; margin: 15px 0; font-style: italic; }
+        input { padding: 12px; width: 100%; margin-bottom: 12px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; outline: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2 id="main-title" style="color: #2563eb;">QR Numaratör</h2>
-        <p id="main-message" style="font-size: 15px; color: #555;">Sistem Aktif. Numaranız %100 Gizlidir.</p>
+        <p id="main-message" style="font-size: 15px; color: #555;">Sistem Aktif.</p>
 
         <!-- EKRAN 1: Sürücü Yönetim Paneli -->
         <div id="panel-ekrani">
             <div class="info-box">
-                🟢 <b>Yönetim Paneli:</b> Buradan karekodunuzun dışarıya göstereceği modu değiştirebilirsiniz. Numaranız tamamen gizlidir.
+                🔍 <b>Mod Ara:</b> Aşağıdaki kutuya yazarak modları filtreleyin:
+                <input type="text" id="mod-search" onkeyup="modFiltrele()" placeholder="Aramak için yazın..." style="margin-top:8px; margin-bottom:0;">
             </div>
 
-            <!-- ARAMA SLOTU -->
-            <div class="search-box">
-                <input type="text" id="mod-search" onkeyup="modFiltrele()" placeholder="Mod ara veya filtrele...">
+            <div class="info-box" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534;">
+                🔒 <b>Numara Gizlilik Ayarı:</b>
+                <input type="tel" id="driver-phone" placeholder="Telefon numaranızı yazın" style="margin-top:8px;">
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="numaraAyarla(true)" style="background:#16a34a; font-size:13px; padding:10px; margin:0; flex:1;">🔓 Numarayı Göster</button>
+                    <button onclick="numaraAyarla(false)" style="background:#dc2626; font-size:13px; padding:10px; margin:0; flex:1;">🔒 Numarayı Gizle</button>
+                </div>
             </div>
 
             <h3 style="text-align: left; font-size: 16px;">1. Modunuzu Seçin:</h3>
@@ -43,7 +42,7 @@
                 <button class="mod-btn" onclick="modSec('🚗 Hatalı Park Modu')" style="background:#28a745;">🚗 Hatalı Park Modu</button>
                 <button class="mod-btn" onclick="modSec('⚠️ Acil Durum Modu')" style="background:#ffc107; color:#222;">⚠️ Acil Durum Modu</button>
                 <button class="mod-btn" onclick="modSec('💼 Toplantı/Meşgul Modu')" style="background:#17a2b8;">💼 Toplantı/Meşgul Modu</button>
-                <p id="hata-mesaji" class="no-result hidden">Aradığınız mod bulunamadı...</p>
+                <p id="hata-mesaji" class="no-result hidden" style="color:#94a3b8; font-style:italic;">Aradığınız mod bulunamadı...</p>
             </div>
             
             <h3>2. Vatandaş Ne Görecek?</h3>
@@ -57,83 +56,96 @@
             </div>
             <p id="vatandas-mesaji" style="font-weight:bold; font-size:16px; line-height: 1.5; background: #fff9db; padding: 15px; border-radius: 8px; border: 1px dashed #f59f00;"></p>
             
+            <!-- SÜRÜCÜ İSTERSE GÖRÜNECEK NUMARA ALANI -->
+            <div id="vatandas-numara-alani" class="hidden" style="background: #f0fdf4; padding: 15px; border-radius: 8px; border: 2px solid #bbf7d0; margin-bottom: 15px; color: #166534; font-weight: bold; font-size: 18px;">
+                📞 Telefon: <a id="phone-link" href="#" style="color:#15803d;"></a>
+            </div>
+
             <!-- İLETİŞİM BUTONLARI -->
             <button onclick="alert('🎉 Yazılı bildirim sürücüye başarıyla iletildi!')" style="background:#2563eb; font-size:16px; padding:15px; width:100%;">💬 Sürücüye Mesaj Gönder</button>
-            <button onclick="alert('🌐 İnternet üzerinden numarasız sesli arama başlatılıyor...')" style="background:#059669; font-size:16px; padding:15px; width:100%; margin-top: 5px;">🌐 Sürücüyü İnternetten Ara</button>
+            <button onclick="alert('🌐 İnternet üzerinden numarasız arama başlatılıyor...')" style="background:#059669; font-size:16px; padding:15px; width:100%; margin-top: 5px;">🌐 Sürücüyü İnternetten Ara</button>
             
             <button onclick="paneleGeriDon()" style="background:#6c757d; font-size:14px; margin-top: 15px;">↩️ Panele Geri Dön</button>
         </div>
     </div>
 
     <script>
-        // Sayfa ilk açıldığında çalışır
         function sayfaBaslat() {
             const kayitliMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
-            document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız %100 Gizlidir.<br><b>Güncel Durum:</b> ${kayitliMod}`;
+            const numaraDurumu = localStorage.getItem("qr_numara_gosterilsin_mi") || "false";
+            const kayitliNumara = localStorage.getItem("qr_surucu_numarasi") || "";
+            
+            let gizlilikYazisi = numaraDurumu === "true" ? "Numaranız Görünür 🔓" : "Numaranız Gizli 🔒";
+            document.getElementById('main-message').innerHTML = `Sistem Aktif. ${gizlilikYazisi}<br><b>Güncel Durum:</b> ${kayitliMod}`;
+            document.getElementById('driver-phone').value = kayitliNumara;
         }
 
-        // Sürücü mod butonuna basınca çalışır
+        function numaraAyarla(gosterilsinMi) {
+            const numara = document.getElementById('driver-phone').value.trim();
+            if (gosterilsinMi && numara.length < 10) {
+                alert("❌ Lütfen önce geçerli bir telefon numarası yazın!");
+                return;
+            }
+            localStorage.setItem("qr_surucu_numarasi", numara);
+            localStorage.setItem("qr_numara_gosterilsin_mi", gosterilsinMi ? "true" : "false");
+            alert(gosterilsinMi ? "🔓 Numaranız vatandaş ekranına eklendi!" : "🔒 Numaranız tamamen gizlendi!");
+            sayfaBaslat();
+        }
+
         function modSec(yeniMod) {
             localStorage.setItem("secili_qr_modu", yeniMod);
-            document.getElementById('main-message').innerHTML = `Sistem Aktif. Numaranız %100 Gizlidir.<br><b>Güncel Durum:</b> ${yeniMod}`;
-            alert(`Durum başarıyla güncellendi:\n${yeniMod}`);
+            sayfaBaslat();
+            alert(`Durum güncellendi:\n${yeniMod}`);
         }
 
-        // Arama slotuna yazıldıkça butonları filtreler
         function modFiltrele() {
             const aramaTerimi = document.getElementById('mod-search').value.trim().toLowerCase();
             const butonlar = document.getElementsByClassName('mod-btn');
             let bulunanModSayisi = 0;
 
             for (let i = 0; i < butonlar.length; i++) {
-                const butonMetni = butonlar[i].innerText.toLowerCase();
-                if (butonMetni.includes(aramaTerimi)) {
+                if (butonlar[i].innerText.toLowerCase().includes(aramaTerimi)) {
                     butonlar[i].style.display = "block";
                     bulunanModSayisi++;
                 } else {
                     butonlar[i].style.display = "none";
                 }
             }
-
-            const hataMesaji = document.getElementById('hata-mesaji');
-            if (bulunanModSayisi === 0) {
-                hataMesaji.classList.remove('hidden');
-            } else {
-                hataMesaji.classList.add('hidden');
-            }
+            document.getElementById('hata-mesaji').style.display = bulunanModSayisi === 0 ? "block" : "none";
         }
 
-        // Vatandaş ekranını açar
         function vatandasEkraniniAc() {
             document.getElementById('panel-ekrani').classList.add('hidden');
             document.getElementById('main-title').innerText = "📱 QR İletişim Sistemi";
-            document.getElementById('main-message').innerText = "Bu aracın sahibi numarasını %100 gizli tutarak sizinle iletişim kurmaktadır.";
             
             const guncelMod = localStorage.getItem("secili_qr_modu") || "🚗 Hatalı Park Modu";
             document.getElementById('aktif-mod-rozeti').innerText = `Durum: ${guncelMod}`;
             
-            const mesajAlani = document.getElementById('vatandas-mesaji');
-            if(guncelMod.includes("Hatalı Park")) {
-                mesajAlani.innerText = "🚗 Araç hatalı park edilmiştir. Sahibi kısa süre içinde gelecektir. Aşağıdaki butonlardan sahibine gizli olarak ulaşabilirsiniz.";
-            } else if(guncelMod.includes("Acil Durum")) {
-                mesajAlani.innerText = "⚠️ Araç başında acil bir durum söz konusudur! Lütfen aşağıdaki butonları kullanarak hemen bildirim gönderin.";
-            } else if(guncelMod.includes("Toplantı")) {
-                mesajAlani.innerText = "💼 Araç sahibi şu anda meşguldür veya toplantıdadır. Çok acil değilse lütfen bekleyiniz.";
+            const numaraGosterilsinMi = localStorage.getItem("qr_numara_gosterilsin_mi") === "true";
+            const kayitliNumara = localStorage.getItem("qr_surucu_numarasi") || "";
+            
+            if (numaraGosterilsinMi && kayitliNumara) {
+                document.getElementById('vatandas-numara-alani').classList.remove('hidden');
+                document.getElementById('phone-link').innerText = kayitliNumara;
+                document.getElementById('phone-link').href = `tel:${kayitliNumara}`;
+            } else {
+                document.getElementById('vatandas-numara-alani').classList.add('hidden');
             }
+            
+            const mesajAlani = document.getElementById('vatandas-mesaji');
+            if(guncelMod.includes("Hatalı Park")) mesajAlani.innerText = "🚗 Araç hatalı park edilmiştir. Aşağıdaki butonlardan sahibine ulaşabilirsiniz.";
+            else if(guncelMod.includes("Acil Durum")) mesajAlani.innerText = "⚠️ Araç başında acil bir durum söz konusudur! Lütfen hemen bildirim gönderin.";
+            else if(guncelMod.includes("Toplantı")) mesajAlani.innerText = "💼 Araç sahibi şu anda meşguldür. Çok acil değilse lütfen bekleyiniz.";
 
             document.getElementById('vatandas-ekrani').classList.remove('hidden');
         }
 
-        // Vatandaş ekranından yönetim paneline geri döner
         function paneleGeriDon() {
             document.getElementById('vatandas-ekrani').classList.add('hidden');
             document.getElementById('main-title').innerText = "QR Numaratör";
             document.getElementById('panel-ekrani').classList.remove('hidden');
-            
-            // Arama kutusunu temizle ve butonları eski haline getir
             document.getElementById('mod-search').value = "";
             modFiltrele();
-            
             sayfaBaslat();
         }
 
